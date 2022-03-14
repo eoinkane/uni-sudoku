@@ -14,7 +14,7 @@ def validate_grid_reference_input(raw_grid_reference: str, column_references: Co
 	)
 
 
-def select_grid_reference():
+def select_grid_reference(column_references: Column_References):
 	recieved_grid_reference = False
 	while not recieved_grid_reference:
 		print("Please input the A1 grid reference you would like to retrieve")
@@ -29,7 +29,7 @@ def game(board: Board):
 	board_width = len(board[0])
 	column_references = get_column_references(board)
 	print_sudoku_board(board, column_references)
-	select_grid_reference()
+	select_grid_reference(column_references)
 	print()
 		
 

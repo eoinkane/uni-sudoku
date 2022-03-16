@@ -46,62 +46,47 @@ def get_sub_grid(sub_grid_indexes, board, grid_id: int):
 
 
 def scratchpad():
-    full_board = [[0 for x in range(9)] for x in range(9)]
-    # first_three_in_column = sample(
-    #     [x for x in range(1, 10) if x not in full_board[0][0:3]], 2
-    # )
-    # first_column = [full_board[0][0], *first_three_in_column, *sample(
-    #     [x for x in range(1, 10) if x not in first_three_in_column], 6
-    # )]
-    # full_board.append([first_column[0], *sample([x for x in range(1, 10) if x != first_column[0]], 8)])
-    # for i in range(1, 9):
-    #     full_board.append([first_column[i], *[x - x for x in range(8)]])
-
+    full_board = [[x for x in range(9)] for x in range(9)]
     transposed_full_board = [list(sublist) for sublist in list(zip(*full_board))]
+    flattened_full_board = list(chain(*full_board))
 
-    # first sub grid section
-    # sub_grid_indexes1 = get_sub_grid_indexes(1)
-    # sub_grid1 = get_sub_grid(sub_grid_indexes1, full_board, 1)
-    # flattened_sub_grid = list(chain(*sub_grid))
+    random_order = sample([x for x in range(len(flattened_full_board))], len(flattened_full_board))
+    for index, random_position in enumerate(random_order):
+        print(f"running loop for {index + 1}st/nd/rd/th time - random position - {random_position}")
+        print(f"row = {random_position / 9}")
+        print(full_board[])
 
-    try:
-        for row_index, row in enumerate(full_board):
-            for column_index, value in enumerate(row):
-                current_area = 3 * round((column_index + 2) / 3)
-                sub_grid_id = int(current_area / 3)
-                sub_grid_indexes = get_sub_grid_indexes(sub_grid_id)
-                print(sub_grid_indexes)
-                print(sub_grid_id)
-                sub_grid = get_sub_grid(sub_grid_indexes, full_board, sub_grid_id)
-                existing_row = row[0:current_area]
-                existing_column = transposed_full_board[column_index][0:current_area]
-                incrementations = 0
-                allowed_values = [x for x in range(1, 10) if x not in existing_row and x not in existing_column and x not in list(chain(*sub_grid))]
-                while value == 0:
-                    print(f"re running while - row_index = {row_index}" +
-                          f" column_index - {column_index}")
-                    print(len(allowed_values))
-                    print(allowed_values)
-                    r_int = choice(allowed_values)
-                    print(f"generated random = {r_int}")
-                    if r_int not in list(chain(*sub_grid)) and r_int not in existing_row:
-                        # print(existing_row)
-                        sub_grid[row_index % 3][column_index % 3] = r_int
-                        full_board[row_index][column_index] = r_int
-                        transposed_full_board[column_index][row_index] = r_int
-                    incrementations += 1
-                    if (incrementations >= 9):
-                        print('debug')
-                        print([x for x in range(1, 10) if x not in existing_row and x not in existing_column and x not in list(chain(*sub_grid))])
-                        print(randint(6, 6))
-                        print(existing_row)
-                        print(get_sub_grid(sub_grid_indexes, full_board, 2))
-                        print(list(chain(*get_sub_grid(sub_grid_indexes, full_board, sub_grid_id))))
-                        break
-    except Exception:
-        print('except')
-        if (len([x for x in [full_board[3]] if x != 0]) - 1) > 0:
-            print('generated into the 3rd row')
+    # try:
+    #     for row_index, row in enumerate(full_board):
+    #         for column_index, value in enumerate(row):
+    #             current_area = 3 * round((column_index + 2) / 3)
+    #             sub_grid_id = int(current_area / 3)
+    #             sub_grid_indexes = get_sub_grid_indexes(sub_grid_id)
+    #             sub_grid = get_sub_grid(sub_grid_indexes, full_board, sub_grid_id)
+    #             existing_row = row[0:current_area]
+    #             existing_column = transposed_full_board[column_index][0:current_area]
+    #             incrementations = 0
+    #             allowed_values = [x for x in range(1, 10) if x not in existing_row and x not in existing_column and x not in list(chain(*sub_grid))]
+    #             while value == 0:
+    #                 print(f"re running while - row_index = {row_index}" +
+    #                       f" column_index - {column_index}")
+    #                 r_int = choice(allowed_values)
+    #                 print(f"generated random = {r_int}")
+    #                 if r_int not in list(chain(*sub_grid)) and r_int not in existing_row:
+    #                     # print(existing_row)
+    #                     sub_grid[row_index % 3][column_index % 3] = r_int
+    #                     full_board[row_index][column_index] = r_int
+    #                     transposed_full_board[column_index][row_index] = r_int
+    #                 incrementations += 1
+    #                 if (incrementations >= 9):
+    #                     print('debug')
+    #                     print(get_sub_grid(sub_grid_indexes, full_board, 2))
+    #                     print(list(chain(*get_sub_grid(sub_grid_indexes, full_board, sub_grid_id))))
+    #                     break
+    # except Exception:
+    #     print('except')
+    #     if (len([x for x in [full_board[3]] if x != 0]) - 1) > 0:
+    #         print('generated into the 3rd row')
 
     # flattened_board = list(chain(*full_board))
 

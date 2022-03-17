@@ -6,7 +6,7 @@ randomed_positions = [5, 3, 8, 0, 3, 2, 6, 4, 7]
 full = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
 
 
-def get_matrix_reference(position: int) -> Tuple[int, int]:
+def get_matrix_indexes(position: int) -> Tuple[int, int]:
     position_modulus = position % 3
     nearest = (round(position/3))
     nearest_modulus = nearest % 3
@@ -34,7 +34,7 @@ def get_matrix_reference(position: int) -> Tuple[int, int]:
 
 
 for index, position in enumerate(randomed_positions):
-    row_index, col_index = get_matrix_reference(position)
+    row_index, col_index = get_matrix_indexes(position)
     assert flat[position] in full[row_index]
     assert flat[position] == full[row_index][col_index]
 

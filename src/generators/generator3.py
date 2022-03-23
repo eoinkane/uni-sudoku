@@ -186,7 +186,6 @@ def cannot_redo_indexes_append(
 
 
 def undo_generation(
-    a: int,
     retry: bool,
     retry_counter: int,
     randomed_positions: list[int],
@@ -194,7 +193,9 @@ def undo_generation(
     board_size: int,
     do_not_use: dict[int, list[int]],
     flat: list[int],
-    cannot_redo_indexes: list[int]
+    cannot_redo_indexes: list[int],
+    full_board: list[list[int]],
+    iterations: int
         ):
     retry = True
     retry_counter += 1
@@ -216,12 +217,20 @@ def undo_generation(
         cannot_redo_indexes=cannot_redo_indexes,
         index=index
         )
+    flat[previous_random_position] = 0
+    full_board[previous_row_index][previous_col_index] = 0
+    iterations -= (retry_counter + 1)
     return {
         'retry': retry,
         'retry_counter': retry_counter,
         'previous_random_position': previous_random_position,
         'previous_row_index': previous_row_index,
-        'previous_col_index': previous_col_index
+        'previous_col_index': previous_col_index,
+        'do_not_use': do_not_use,
+        'cannot_redo_indexes': cannot_redo_indexes,
+        'flat': flat,
+        'full_board': full_board,
+        'iterations': iterations
     }
 
 

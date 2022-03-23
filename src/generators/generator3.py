@@ -323,43 +323,80 @@ def main():
             print(allowed_values)
             if (index in cannot_redo_indexes):
                 print("detected double redo")
-                break
-            print(f"\nfailed at index - {index}\n")
-            print('undoing once')
-            # iterations, full_board, flat = reset_generation(board_size)
-            # break
-            retry = True
-            retry_counter += 1
-            previous_random_position = randomed_positions[
-                index - retry_counter
-            ]
-            print(f"previous_random_position - {previous_random_position}")
+                if retry is True:
+                    print('attempting double undo')
+                    undo_config = undo_generation(
+                        board_size=board_size,
+                        cannot_redo_indexes=cannot_redo_indexes,
+                        do_not_use=do_not_use,
+                        flat=flat,
+                        full_board=full_board,
+                        index=index,
+                        iterations=iterations,
+                        randomed_positions=randomed_positions,
+                        retry=retry,
+                        retry_counter=retry_counter,
+                    )
 
-            previous_row_index, previous_col_index = get_matrix_references(
-                previous_random_position, board_size
-            )
+                    retry = undo_config['retry']
+                    retry_counter = undo_config['retry_counter']
+                    previous_random_position = undo_config['previous_random_position']
+                    print(f"double | previous_random_position - {previous_random_position}")
 
-            print("value of previous generation - " +
-                  f"{full_board[previous_row_index][previous_col_index]}")
+                    previous_row_index = undo_config['previous_row_index']
+                    previous_col_index = undo_config['previous_col_index']
 
-            do_not_use = do_not_use_append(
-                do_not_use=do_not_use,
-                index=index,
-                append_value=flat[previous_random_position]
+                    print("double | value of previous generation - " +
+                        f"{full_board[previous_row_index][previous_col_index]}")
+
+                    do_not_use = undo_config['do_not_use']
+
+                    cannot_redo_indexes = undo_config['cannot_redo_indexes']
+                    flat = undo_config['flat']
+                    full_board = undo_config['full_board']
+                    iterations = undo_config['iterations']
+                # break
+            else:
+                print(f"\nfailed at index - {index}\n")
+                print('undoing once')
+                # iterations, full_board, flat = reset_generation(board_size)
+                # break
+
+                undo_config = undo_generation(
+                    board_size=board_size,
+                    cannot_redo_indexes=cannot_redo_indexes,
+                    do_not_use=do_not_use,
+                    flat=flat,
+                    full_board=full_board,
+                    index=index,
+                    iterations=iterations,
+                    randomed_positions=randomed_positions,
+                    retry=retry,
+                    retry_counter=retry_counter,
                 )
 
-            # if ((index - 1) not in do_not_use):
-            #     do_not_use[index - 1] = []
-            # do_not_use[index - 1].append(flat[previous_random_position])
-            # cannot_redo_indexes.append(index)
-            cannot_redo_indexes = cannot_redo_indexes_append(
-                cannot_redo_indexes=cannot_redo_indexes,
-                index=index
-                )
-            flat[previous_random_position] = 0
-            full_board[previous_row_index][previous_col_index] = 0
-            iterations -= (retry_counter + 1)
-            # break
+                retry = undo_config['retry']
+                retry_counter = undo_config['retry_counter']
+                previous_random_position = undo_config['previous_random_position']
+                print(f"previous_random_position - {previous_random_position}")
+
+                previous_row_index = undo_config['previous_row_index']
+                previous_col_index = undo_config['previous_col_index']
+
+                print("value of previous generation - " +
+                    f"{full_board[previous_row_index][previous_col_index]}")
+
+                do_not_use = undo_config['do_not_use']
+
+                # if ((index - 1) not in do_not_use):
+                #     do_not_use[index - 1] = []
+                # do_not_use[index - 1].append(flat[previous_random_position])
+                # cannot_redo_indexes.append(index)
+                cannot_redo_indexes = undo_config['cannot_redo_indexes']
+                flat = undo_config['flat']
+                full_board = undo_config['full_board']
+                iterations = undo_config['iterations']
+                # break
 
     return full_board
 

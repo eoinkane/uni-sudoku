@@ -186,16 +186,16 @@ def cannot_redo_indexes_append(
 
 
 def undo_generation(
-    retry: bool,
-    retry_counter: int,
-    randomed_positions: list[int],
-    index: int,
     board_size: int,
+    cannot_redo_indexes: list[int],
     do_not_use: dict[int, list[int]],
     flat: list[int],
-    cannot_redo_indexes: list[int],
     full_board: list[list[int]],
-    iterations: int
+    index: int,
+    iterations: int,
+    randomed_positions: list[int],
+    retry: bool,
+    retry_counter: int
         ):
     retry = True
     retry_counter += 1

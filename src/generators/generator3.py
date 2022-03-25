@@ -216,7 +216,13 @@ def undo_generation(
     cannot_redo_indexes = cannot_redo_indexes_append(
         cannot_redo_indexes=cannot_redo_indexes,
         index=index
-        )
+    )
+
+    print(
+        "line22 resetting vals - previous_random_position" +
+        f"{previous_random_position} row - {previous_row_index} " +
+        f"col - {previous_col_index}\n"
+    )
     flat[previous_random_position] = 0
     full_board[previous_row_index][previous_col_index] = 0
     iterations -= (retry_counter + 1)
@@ -323,39 +329,7 @@ def main():
             print(allowed_values)
             if (index in cannot_redo_indexes):
                 print("detected double redo")
-                if retry is True:
-                    print('attempting double undo')
-                    undo_config = undo_generation(
-                        board_size=board_size,
-                        cannot_redo_indexes=cannot_redo_indexes,
-                        do_not_use=do_not_use,
-                        flat=flat,
-                        full_board=full_board,
-                        index=index,
-                        iterations=iterations,
-                        randomed_positions=randomed_positions,
-                        retry=retry,
-                        retry_counter=retry_counter,
-                    )
-
-                    retry = undo_config['retry']
-                    retry_counter = undo_config['retry_counter']
-                    previous_random_position = undo_config['previous_random_position']
-                    print(f"double | previous_random_position - {previous_random_position}")
-
-                    previous_row_index = undo_config['previous_row_index']
-                    previous_col_index = undo_config['previous_col_index']
-
-                    print("double | value of previous generation - " +
-                        f"{full_board[previous_row_index][previous_col_index]}")
-
-                    do_not_use = undo_config['do_not_use']
-
-                    cannot_redo_indexes = undo_config['cannot_redo_indexes']
-                    flat = undo_config['flat']
-                    full_board = undo_config['full_board']
-                    iterations = undo_config['iterations']
-                # break
+                break
             else:
                 print(f"\nfailed at index - {index}\n")
                 print('undoing once')

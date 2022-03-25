@@ -25,16 +25,29 @@ def get_matrix_references(flat_position: int, board_size: int):
     return row_index, col_index
 
 
-def get_row(full_board, row_index):
+def get_row(full_board, row_index) -> list[int]:
     return full_board[row_index]
 
 
-def get_column(flat, board_size, col_index):
-    return [val for ind, val in enumerate(flat) if ind % board_size == col_index]
+def get_column(flat, board_size, col_index) -> list[int]:
+    return [
+        val for ind, val in
+        enumerate(flat)
+        if ind % board_size == col_index
+    ]
 
 
-def get_row_and_column(full_board, flat, board_size, row_index, col_index):
-    return get_row(full_board, row_index), get_column(flat, board_size, col_index)
+def get_row_and_column(
+    full_board,
+    flat,
+    board_size,
+    row_index,
+    col_index
+        ):
+    return (
+        get_row(full_board, row_index),
+        get_column(flat, board_size, col_index)
+    )
 
 
 def get_sub_grid_indexes(grid_id: int):
@@ -87,7 +100,9 @@ def generate_empty_board(board_size: int) -> list[list[int]]:
     ]
 
 
-def reset_generation(board_size: int) -> tuple[int, list[list[int]], list[int]]:
+def reset_generation(board_size: int) -> (
+    tuple[int, list[list[int]], list[int]]
+        ):
     board = generate_empty_board(board_size)
     flat_board = list(chain(*board))
     return 0, board, flat_board
@@ -351,14 +366,17 @@ def main():
 
                 retry = undo_config['retry']
                 retry_counter = undo_config['retry_counter']
-                previous_random_position = undo_config['previous_random_position']
+                previous_random_position = (
+                    undo_config['previous_random_position']
+                )
                 print(f"previous_random_position - {previous_random_position}")
 
                 previous_row_index = undo_config['previous_row_index']
                 previous_col_index = undo_config['previous_col_index']
 
                 print("value of previous generation - " +
-                    f"{full_board[previous_row_index][previous_col_index]}")
+                      full_board[previous_row_index][previous_col_index]
+                      )
 
                 do_not_use = undo_config['do_not_use']
 

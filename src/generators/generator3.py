@@ -209,11 +209,10 @@ def undo_generation(
     index: int,
     iterations: int,
     randomed_positions: list[int],
-    retry: bool,
     retry_counter: int
         ):
-    retry = True
-    retry_counter += 1
+
+
     previous_random_position = randomed_positions[
         index - retry_counter
     ]
@@ -241,9 +240,8 @@ def undo_generation(
     flat[previous_random_position] = 0
     full_board[previous_row_index][previous_col_index] = 0
     iterations -= (retry_counter + 1)
+    # iterations -= retry_counter
     return {
-        'retry': retry,
-        'retry_counter': retry_counter,
         'previous_random_position': previous_random_position,
         'previous_row_index': previous_row_index,
         'previous_col_index': previous_col_index,
@@ -272,6 +270,7 @@ def main():
 
     iterations = 0
     retry = False
+    previous_retry_counter = 0
     retry_counter = 0
     do_not_use: dict[int, list[int]] = {}
     cannot_redo_indexes: list[int] = []
@@ -290,6 +289,7 @@ def main():
         iterations = loop_config['iterations']
 
         print(f"\n---\nrandom position - {random_position}")
+        print(f"iteration - {iterations}")
         print(f"index - {index}")
         print(f"current value - {flat[random_position]}")
         row_index = loop_config['row_index']
@@ -336,63 +336,82 @@ def main():
             print('\nnewboard:')
             print_board_diff(full_board, row_index, col_index)
             if (retry is True):
+                print("resetting retry")
                 # do_not_use = []
 
                 retry = False
+                previous_retry_counter = retry_counter
                 retry_counter = 0
+                # if (index in cannot_redo_indexes):
+                #     cannot_redo_indexes.remove(index)
         else:
             print(allowed_values)
+            print()
+            """
             if (index in cannot_redo_indexes):
-                print("detected double redo")
+                print("need to redo")
+                print(f"retry counter = {retry_counter}")
+                print(f"previous retry counter = {previous_retry_counter}")
+                print(f"index = {index}")
+                print(f"cannot_redo_indexes = {cannot_redo_indexes}")
+                for i in range(1, (previous_retry_counter + 1)):
+                    print(f"theoritcally undoing  {i}")
+
+                print(f"should be back to {iterations - previous_retry_counter}")
+                quit()
                 break
             else:
-                print(f"\nfailed at index - {index}\n")
-                print('undoing once')
-                # iterations, full_board, flat = reset_generation(board_size)
-                # break
+            """
+            print(f"\nfailed at index - {index}\n")
+            print('undoing once')
+            # iterations, full_board, flat = reset_generation(board_size)
+            # break
+            print(f"current iter - {iterations} ")
 
-                undo_config = undo_generation(
-                    board_size=board_size,
-                    cannot_redo_indexes=cannot_redo_indexes,
-                    do_not_use=do_not_use,
-                    flat=flat,
-                    full_board=full_board,
-                    index=index,
-                    iterations=iterations,
-                    randomed_positions=randomed_positions,
-                    retry=retry,
-                    retry_counter=retry_counter,
-                )
+            retry = True
+            retry_counter += 1
 
-                retry = undo_config['retry']
-                retry_counter = undo_config['retry_counter']
-                previous_random_position = (
-                    undo_config['previous_random_position']
-                )
-                print(f"previous_random_position - {previous_random_position}")
+            undo_config = undo_generation(
+                board_size=board_size,
+                cannot_redo_indexes=cannot_redo_indexes,
+                do_not_use=do_not_use,
+                flat=flat,
+                full_board=full_board,
+                index=index,
+                iterations=iterations,
+                randomed_positions=randomed_positions,
+                retry_counter=retry_counter,
+            )
 
-                previous_row_index = undo_config['previous_row_index']
-                previous_col_index = undo_config['previous_col_index']
+            previous_random_position = (
+                undo_config['previous_random_position']
+            )
+            print(f"previous_random_position - {previous_random_position}")
 
-                print("value of previous generation - " +
-                      full_board[previous_row_index][previous_col_index]
-                      )
+            previous_row_index = undo_config['previous_row_index']
+            previous_col_index = undo_config['previous_col_index']
 
-                do_not_use = undo_config['do_not_use']
+            print("value of previous generation - " +
+                    f"{full_board[previous_row_index][previous_col_index]}"
+                    )
 
-                # if ((index - 1) not in do_not_use):
-                #     do_not_use[index - 1] = []
-                # do_not_use[index - 1].append(flat[previous_random_position])
-                # cannot_redo_indexes.append(index)
-                cannot_redo_indexes = undo_config['cannot_redo_indexes']
-                flat = undo_config['flat']
-                full_board = undo_config['full_board']
-                iterations = undo_config['iterations']
-                # break
+            do_not_use = undo_config['do_not_use']
+
+            # if ((index - 1) not in do_not_use):
+            #     do_not_use[index - 1] = []
+            # do_not_use[index - 1].append(flat[previous_random_position])
+            # cannot_redo_indexes.append(index)
+            cannot_redo_indexes = undo_config['cannot_redo_indexes']
+            flat = undo_config['flat']
+            full_board = undo_config['full_board']
+            iterations = undo_config['iterations']
+            # break
+            # print(f"should do redo position ? next maybe - {iterations} ")
+            # quit()
 
     return full_board
 
 
 if __name__ == '__main__':
     board = main()
-    # print_board(board)
+    print_board(board)

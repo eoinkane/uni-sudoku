@@ -115,7 +115,13 @@ def update_board(row_index, col_index, board_size, value):
     global_flat_board[(row_index * board_size) + col_index]
 
 
-def generate_allowed_values(local_full_board, local_flat_board, row_index, col_index, board_size):
+def generate_allowed_values(
+    local_full_board,
+    local_flat_board,
+    row_index,
+    col_index,
+    board_size
+        ):
     existing_row, existing_column = get_row_and_column(
         local_full_board,
         local_flat_board,
@@ -266,7 +272,12 @@ if __name__ == "__main__":
         shuffle(allowed_values)
         print(f"shuffled allowed_values {allowed_values}")
         if (len(allowed_values) > 0):
-            update_board(row_index, col_index, global_board_size, allowed_values[0])
+            update_board(
+                row_index,
+                col_index,
+                global_board_size,
+                allowed_values[0]
+            )
             i += 1
         else:
             print("debug line")

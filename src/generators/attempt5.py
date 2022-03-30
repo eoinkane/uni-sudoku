@@ -3,6 +3,7 @@ from itertools import chain
 
 
 def print_board(full_board):
+    print("      1    2    3    4    5    6    7    8    9")
     print("    ______________________________________________")
     for print_row_index, print_row in enumerate(full_board):
         print(f"{print_row_index + 1} - | {' | '.join(stg if len(stg) == 2 else stg.zfill(2) for stg in [str(item) for item in print_row])} |")
@@ -30,11 +31,6 @@ def get_row(full_board, row_index) -> list[int]:
 
 
 def get_column(full_board, board_size, col_index) -> list[int]:
-    print("33")
-    print(col_index)
-    print_board_diff(full_board, 0, col_index)
-    print(list(list(zip(*full_board))[col_index]))
-    # quit()
     return list(list(zip(*full_board))[col_index])
     # return [
     #     val for ind, val in
@@ -115,14 +111,14 @@ def reset_generation(board_size: int) -> (
 
 
 def update_board(row_index, col_index, board_size, value):
-    full_board[row_index][col_index] = value
-    flat_board[(row_index * board_size) + col_index]
+    global_full_board[row_index][col_index] = value
+    global_flat_board[(row_index * board_size) + col_index]
 
 
-def generate_allowed_values(row_index, col_index, board_size):
+def generate_allowed_values(local_full_board, local_flat_board, row_index, col_index, board_size):
     existing_row, existing_column = get_row_and_column(
-        full_board,
-        flat_board,
+        local_full_board,
+        local_flat_board,
         board_size,
         row_index,
         col_index
@@ -141,11 +137,17 @@ def generate_allowed_values(row_index, col_index, board_size):
         sub_grid_id = sub_grid_col + 6
 
     sub_grid_indexes = get_sub_grid_indexes(sub_grid_id)
-    sub_grid = get_sub_grid(sub_grid_indexes, full_board, sub_grid_id)
+    sub_grid = get_sub_grid(sub_grid_indexes, global_full_board, sub_grid_id)
+
+    local_do_not_use = []
+    if (((row_index * board_size) + col_index) in do_not_use):
+        local_do_not_use = do_not_use[((row_index * board_size) + col_index)]
+
     allowed_values = [
         x for x in range(1, 10)
         if x not in existing_row
         and x not in existing_column
+        and x not in local_do_not_use
         and x not in list(chain(*sub_grid))
     ]
     return allowed_values
@@ -158,51 +160,143 @@ def is_valid_update(row_index, col_index, value, board_size,  **kwargs):
     return value in allowed_values
 
 
+def local_undo_one_value(
+        flat_index,
+        local_full_board,
+        local_flat_board,
+        **kwargs
+        ):
+    row_index, col_index = kwargs.get(
+        "row_and_col_index",
+        get_matrix_references(
+            flat_index, global_board_size
+        )
+    )
+    if ((flat_index) not in do_not_use):
+        do_not_use[flat_index] = []
+    do_not_use[flat_index].append(local_flat_board[flat_index])
+    local_full_board[row_index][col_index] = 0
+    local_flat_board[flat_index] = 0
+    return (local_full_board, local_flat_board)
+
+
+def return_to_last_choice(flat_index):
+    local_full_board = global_full_board
+    local_flat_board = list(chain(*local_full_board))
+    for undoing_index in range(flat_index, -1, -1):
+        row_index, col_index = get_matrix_references(
+            undoing_index, global_board_size
+        )
+        undone_full_board, undone_flat_board = local_undo_one_value(
+            undoing_index,
+            local_full_board,
+            local_flat_board,
+            row_and_col_index=(row_index, col_index)
+        )
+        allowed_values = generate_allowed_values(
+            undone_full_board,
+            undone_flat_board,
+            row_index,
+            col_index,
+            global_board_size
+        )
+        # print(local_flat_board[undoing_index])
+        # print(f"running the local undo undoing_index- {undoing_index} human row_and_col_index={(row_index + 1, col_index + 1)}| allowed {allowed_values} | length {len(allowed_values)}\n")
+        # print(get_row(local_full_board, row_index))
+        # print(get_column(local_full_board, global_board_size, col_index))
+        if (len(allowed_values) > 1):
+            return {
+                "row_index": row_index,
+                "col_index": col_index,
+                "full_board": local_full_board,
+                "flat_board": local_flat_board,
+                "undone_index": undoing_index
+            }
+    return {
+        "row_index": 0,
+        "col_index": 0,
+        "full_board": generate_empty_board(global_board_size),
+        "flat_board": list(chain(*generate_empty_board(global_board_size))),
+        "undone_index": 0
+    }
+
+
 global_board_size = 9
 global_full_board = []
 global_flat_board = []
 
+do_not_use = {}
+
 if __name__ == "__main__":
-    full_board = generate_empty_board(global_board_size)
+    do_not_use = {}
+    global_full_board = generate_empty_board(global_board_size)
     # full_board[0] = [0, 2, 3, 4, 5, 6, 7, 8, 9]
-    flat_board = list(chain(*full_board))
+    global_flat_board = list(chain(*global_full_board))
     no_of_positions = global_board_size ** 2
     positions = [x for x in range(no_of_positions)]
     randomed_positions = [4, 54, 48, 25, 5, 59, 78, 58, 20, 49, 53, 27, 62, 21, 22, 41, 32, 79, 66, 0, 46, 45, 13, 68, 67, 26, 12, 47, 39, 51, 42, 37, 52, 14, 11, 72, 69, 65, 75, 44, 23, 50, 24, 17, 28, 31, 63, 73, 56, 34, 7, 18, 74, 33, 57, 71, 15, 8, 2, 1, 30, 60, 9, 38, 29, 3, 16, 43, 70, 61, 35, 10, 64, 80, 55, 19, 77, 36, 40, 6, 76]
     # randomed_positions = sample(positions, no_of_positions)
 
-    print_board(full_board)
+    print_board(global_full_board)
     # print(flat_board)
     # print(positions)
     # print(randomed_positions)
 
-    for i in range(no_of_positions):
+    i = 0
+
+    while (i < no_of_positions):
         # if i == 1:
         #     break
+        if (i < 0):
+            print("error")
+            quit()
         print(f"running for i {i}")
         row_index, col_index = get_matrix_references(
             i, global_board_size
         )
-        print(f"row {row_index} col {col_index}")
-        allowed_values = generate_allowed_values(row_index, col_index, global_board_size)
-        print(allowed_values)
-        numbers = [x for x in range(1, 10)]
+        print(f"human row {row_index + 1} col {col_index + 1}")
+        allowed_values = generate_allowed_values(
+            global_full_board,
+            global_flat_board,
+            row_index,
+            col_index,
+            global_board_size
+        )
+        print(f"allowed_values {allowed_values}")
         shuffle(allowed_values)
+        print(f"shuffled allowed_values {allowed_values}")
         if (len(allowed_values) > 0):
             update_board(row_index, col_index, global_board_size, allowed_values[0])
-        if (i == 71):
-            print_board(full_board)
+            i += 1
+        else:
+            print("debug line")
+            print_board(global_full_board)
             existing_row, existing_column = get_row_and_column(
-                full_board,
-                flat_board,
+                global_full_board,
+                global_full_board,
                 global_board_size,
                 row_index,
                 col_index
             )
-            print("debug line")
-            print(existing_row)
-            print(f"row {row_index + 1} col {col_index + 1}")
+            print(f"existing row {existing_row}")
+            print(f"existing column {existing_column[0]}")
+            for a in existing_column[1:]:
+                print(f"                {a}")
+            print(f"(human) row_index {row_index + 1} col_index {col_index + 1}")
+            print(f"for loop key {i}")
+
+            undone = return_to_last_choice(i)
+
+            print(f"({undone['row_index'] + 1}, {undone['col_index'] + 1})")
+            print(f"{undone['undone_index']}")
+
+            global_full_board = undone["full_board"]
+            global_flat_board = undone["flat_board"]
+            i = undone["undone_index"]
+            if (i == 0):
+                do_not_use = {}
+
             # quit()
         print("-----\n")
-    print_board(full_board)
-    print(len([x for x in list(chain(*full_board)) if x == 0]))
+    print_board(global_full_board)
+    print(len([x for x in list(chain(*global_full_board)) if x == 0]))

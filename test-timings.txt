@@ -1,0 +1,7 @@
+multitime -n 1000 "./test.sh"                                                                                                 ─╯
+===> multitime results
+1: ./test.sh
+            Mean        Std.Dev.    Min         Median      Max
+real        0.589       0.553       0.045       0.404       5.104       
+user        0.581       0.552       0.027       0.396       5.099       
+sys         0.006       0.008       0.000       0.001       0.081

@@ -1,7 +1,18 @@
-multitime -n 1000 "./test.sh"                                                                                                 ─╯
+# ran on Ubuntu 18.04 WSL 2 running on my personal Lenovo E570 laptop (Intel i3)
+multitime -n 1000 "./test.sh"
 ===> multitime results
 1: ./test.sh
             Mean        Std.Dev.    Min         Median      Max
 real        0.589       0.553       0.045       0.404       5.104       
 user        0.581       0.552       0.027       0.396       5.099       
 sys         0.006       0.008       0.000       0.001       0.081
+
+# ran on my work Macbook Pro (Intel i5)
+multitime -n 5000 "./test.sh"
+===> multitime results
+1: ./test.sh
+            Mean        Std.Dev.    Min         Median      Max
+real        0.404       0.296       0.101       0.313       2.829       
+user        0.319       0.289       0.034       0.230       2.631       
+sys         0.023       0.004       0.016       0.023       0.074 
+

@@ -1,4 +1,4 @@
-from random import choice, sample, shuffle
+from random import choice, shuffle
 from itertools import chain
 
 
@@ -30,13 +30,8 @@ def get_row(full_board, row_index) -> list[int]:
     return full_board[row_index]
 
 
-def get_column(full_board, board_size, col_index) -> list[int]:
+def get_column(full_board, col_index) -> list[int]:
     return list(list(zip(*full_board))[col_index])
-    # return [
-    #     val for ind, val in
-    #     enumerate(flat)
-    #     if ind % board_size == col_index
-    # ]
 
 
 def get_row_and_column(
@@ -48,7 +43,7 @@ def get_row_and_column(
         ):
     return (
         get_row(full_board, row_index),
-        get_column(full_board, board_size, col_index)
+        get_column(full_board, col_index)
     )
 
 
@@ -134,7 +129,6 @@ def generate_allowed_values(
 
     sub_grid_row = ((row_index // 3) + 1)
 
-    # sub_grid_id = 0
     if (sub_grid_row == 1):
         sub_grid_id = sub_grid_col * sub_grid_row
     elif (sub_grid_row == 2):
@@ -206,10 +200,7 @@ def return_to_last_choice(flat_index):
             col_index,
             global_board_size
         )
-        # print(local_flat_board[undoing_index])
-        # print(f"running the local undo undoing_index- {undoing_index} human row_and_col_index={(row_index + 1, col_index + 1)}| allowed {allowed_values} | length {len(allowed_values)}\n")
-        # print(get_row(local_full_board, row_index))
-        # print(get_column(local_full_board, global_board_size, col_index))
+
         if (len(allowed_values) > 1):
             return {
                 "row_index": row_index,
@@ -232,7 +223,6 @@ if __name__ == "__main__":
     do_not_use = {}
     test_obj = {}
     global_full_board = generate_empty_board(global_board_size)
-    # full_board[0] = [0, 2, 3, 4, 5, 6, 7, 8, 9]
     global_flat_board = list(chain(*global_full_board))
     no_of_positions = global_board_size ** 2
     positions = [x for x in range(no_of_positions)]
@@ -282,8 +272,6 @@ if __name__ == "__main__":
         elif (i in test_obj):
             del test_obj[i]
 
-    for key, (row_i, col_i) in test_obj.items():
-        print(f"(row, col) ({row_i + 1}, {col_i + 1}) can be changed")
     print_board(global_full_board)
     print(len([x for x in list(chain(*global_full_board)) if x == 0]))
 

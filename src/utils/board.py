@@ -85,14 +85,6 @@ def get_row_and_column(
     )
 
 
-def reset_board_generation(board_size: int) -> (
-    Tuple[int, list[list[int]], list[int]]
-        ):
-    board = generate_empty_board(board_size)
-    flat_board = list(chain(*board))
-    return 0, board, flat_board
-
-
 def update_board(
     full_board: Board,
     flat_board: Flat_Board,
@@ -142,67 +134,3 @@ def generate_allowed_values(
         and x not in list(chain(*sub_grid))
     ]
     return allowed_values
-
-
-def local_undo_one_value(
-        flat_index,
-        local_full_board,
-        local_flat_board,
-        board_size,
-        do_not_use,
-        **kwargs
-        ):
-    row_index, col_index = kwargs.get(
-        "row_and_col_index",
-        get_matrix_references(
-            flat_index, board_size
-        )
-    )
-    if ((flat_index) not in do_not_use):
-        do_not_use[flat_index] = []
-    do_not_use[flat_index].append(local_flat_board[flat_index])
-    local_full_board[row_index][col_index] = 0
-    local_flat_board[flat_index] = 0
-    return (local_full_board, local_flat_board)
-
-
-def return_to_last_choice(full_board, board_size, flat_index, do_not_use):
-    local_full_board = full_board
-    local_flat_board = list(chain(*local_full_board))
-    for undoing_index in range(flat_index, -1, -1):
-        row_index, col_index = get_matrix_references(
-            undoing_index, board_size
-        )
-        undone_full_board, undone_flat_board = local_undo_one_value(
-            undoing_index,
-            local_full_board,
-            local_flat_board,
-            board_size,
-            do_not_use,
-
-            row_and_col_index=(row_index, col_index)
-        )
-        allowed_values = generate_allowed_values(
-            undone_full_board,
-            row_index,
-            col_index,
-            board_size,
-            do_not_use
-        )
-
-        if (len(allowed_values) > 1):
-            return {
-                "row_index": row_index,
-                "col_index": col_index,
-                "full_board": local_full_board,
-                "flat_board": local_flat_board,
-                "undone_index": undoing_index
-            }
-    empty_board = generate_empty_board(board_size)
-    return {
-        "row_index": 0,
-        "col_index": 0,
-        "full_board": empty_board,
-        "flat_board": list(chain(*empty_board)),
-        "undone_index": 0
-    }

@@ -13,10 +13,10 @@ def clear_screen():
 
 def print_sudoku_board(board: Board, column_references: Column_References):
     clear_screen()
-    print("      " + "   ".join(column_references))
+    print("      " + "   ".join([str(x + 1) for x in range(len(board))]))
     print("    _____________________________________")
     for row_index, row in enumerate(board):
-        print(f"{row_index + 1} - | " +
+        print(f"{column_references[row_index]} - | " +
               f"{' | '.join(str(item) for item in row).replace('0', ' ')} |"
               )
     print("    ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯")

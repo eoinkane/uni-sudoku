@@ -1,6 +1,7 @@
 from random import choice, shuffle
 from itertools import chain
-# from typing import Tuple
+from typing import Tuple
+from copy import deepcopy
 from utils.board import (
     # get_sub_grid_indexes,
     # get_sub_grid,
@@ -8,11 +9,11 @@ from utils.board import (
     get_matrix_references,
     # get_column,
     # get_row,
-    get_row_and_column,
+    # get_row_and_column,
     update_board,
     generate_allowed_values,
     # local_undo_one_value,
-    return_to_last_choice
+    # return_to_last_choice
     )
 
 
@@ -33,26 +34,97 @@ def print_board_diff(full_board, changed_row_index, changed_col_index):
     print("    ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯")
 
 
-def main():
-    global_board_size = 9
+def local_undo_one_value(
+        flat_index,
+        local_full_board,
+        local_flat_board,
+        board_size,
+        do_not_use,
+        **kwargs
+        ):
+    row_index, col_index = kwargs.get(
+        "row_and_col_index",
+        get_matrix_references(
+            flat_index, board_size
+        )
+    )
+    if ((flat_index) not in do_not_use):
+        do_not_use[flat_index] = []
+    do_not_use[flat_index].append(local_flat_board[flat_index])
+    local_full_board[row_index][col_index] = 0
+    local_flat_board[flat_index] = 0
+    return (local_full_board, local_flat_board)
+
+
+def reset_board_generation(board_size: int) -> (
+    Tuple[int, list[list[int]], list[int]]
+        ):
+    board = generate_empty_board(board_size)
+    flat_board = list(chain(*board))
+    return 0, board, flat_board
+
+
+def return_to_last_choice(full_board, board_size, flat_index, do_not_use):
+    local_full_board = full_board
+    local_flat_board = list(chain(*local_full_board))
+    for undoing_index in range(flat_index, -1, -1):
+        row_index, col_index = get_matrix_references(
+            undoing_index, board_size
+        )
+        undone_full_board, undone_flat_board = local_undo_one_value(
+            undoing_index,
+            local_full_board,
+            local_flat_board,
+            board_size,
+            do_not_use,
+
+            row_and_col_index=(row_index, col_index)
+        )
+        allowed_values = generate_allowed_values(
+            undone_full_board,
+            row_index,
+            col_index,
+            board_size,
+            do_not_use
+        )
+
+        if (len(allowed_values) > 1):
+            return {
+                "row_index": row_index,
+                "col_index": col_index,
+                "full_board": local_full_board,
+                "flat_board": local_flat_board,
+                "undone_index": undoing_index
+            }
+    empty_board = generate_empty_board(board_size)
+    return {
+        "row_index": 0,
+        "col_index": 0,
+        "full_board": empty_board,
+        "flat_board": list(chain(*empty_board)),
+        "undone_index": 0
+    }
+
+
+def generate_board(board_size: int):
     do_not_use = {}
     test_obj = {}
-    global_full_board = generate_empty_board(global_board_size)
+    global_full_board = generate_empty_board(board_size)
     global_flat_board = list(chain(*global_full_board))
-    no_of_positions = global_board_size ** 2
+    no_of_positions = board_size ** 2
     positions = [x for x in range(no_of_positions)]
 
     i = 0
 
     while (i < no_of_positions):
         row_index, col_index = get_matrix_references(
-            i, global_board_size
+            i, board_size
         )
         allowed_values = generate_allowed_values(
             global_full_board,
             row_index,
             col_index,
-            global_board_size,
+            board_size,
             do_not_use
         )
         shuffle(allowed_values)
@@ -62,20 +134,20 @@ def main():
                 global_flat_board,
                 row_index,
                 col_index,
-                global_board_size,
+                board_size,
                 allowed_values[0]
             )
             i += 1
         else:
-            existing_row, existing_column = get_row_and_column(
-                global_full_board,
-                row_index,
-                col_index
-            )
+            # existing_row, existing_column = get_row_and_column(
+            #     global_full_board,
+            #     row_index,
+            #     col_index
+            # )
 
             undone = return_to_last_choice(
                 global_full_board,
-                global_board_size,
+                board_size,
                 i,
                 do_not_use
             )
@@ -91,8 +163,7 @@ def main():
         elif (i in test_obj):
             del test_obj[i]
 
-    print_board(global_full_board)
-    print(len([x for x in list(chain(*global_full_board)) if x == 0]))
+    empty_full_board = deepcopy(global_full_board)
 
     empty_levels = {
         "EASY":  choice([x for x in range(40, 46)]),
@@ -105,15 +176,26 @@ def main():
         while not changed:
             row_index, col_index = get_matrix_references(
                 choice(positions),
-                global_board_size
+                board_size
                 )
-            if (global_full_board[row_index][col_index] != 0):
-                global_full_board[row_index][col_index] = 0
+            if (empty_full_board[row_index][col_index] != 0):
+                empty_full_board[row_index][col_index] = 0
                 changed = True
 
-    print_board(global_full_board)
-    print(len([x for x in list(chain(*global_full_board)) if x == 0]))
+    return {
+        "filled_full_board": global_full_board,
+        "filled_flat_board": list(chain(*global_full_board)),
+        "empty_full_board": empty_full_board,
+        "empty_flat_board": list(chain(*empty_full_board))
+    }
 
 
 if __name__ == "__main__":
-    main()
+    generation = generate_board(9)
+    filled_full_board = generation["filled_full_board"]
+    empty_full_board = generation["empty_full_board"]
+
+    print_board(filled_full_board)
+    print(len([x for x in list(chain(*filled_full_board)) if x == 0]))
+    print_board(empty_full_board)
+    print(len([x for x in list(chain(*empty_full_board)) if x == 0]))

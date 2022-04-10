@@ -3,17 +3,10 @@ from itertools import chain
 from typing import Tuple
 from copy import deepcopy
 from utils.board import (
-    # get_sub_grid_indexes,
-    # get_sub_grid,
     generate_empty_board,
     get_matrix_references,
-    # get_column,
-    # get_row,
-    # get_row_and_column,
     update_board,
     generate_allowed_values,
-    # local_undo_one_value,
-    # return_to_last_choice
     )
 
 

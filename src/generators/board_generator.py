@@ -8,6 +8,7 @@ from utils.board import (
     update_board,
     generate_allowed_values,
     )
+from utils.enums import Difficulty
 
 
 def print_board(full_board):
@@ -99,7 +100,7 @@ def return_to_last_choice(full_board, board_size, flat_index, do_not_use):
     }
 
 
-def generate_board(board_size: int):
+def generate_board(board_size: int, difficulty: Difficulty):
     do_not_use = {}
     test_obj = {}
     global_full_board = generate_empty_board(board_size)
@@ -159,12 +160,12 @@ def generate_board(board_size: int):
     empty_full_board = deepcopy(global_full_board)
 
     empty_levels = {
-        "EASY":  choice([x for x in range(40, 46)]),
-        "MEDIUM": choice([x for x in range(46, 50)]),
-        "HARD": choice([x for x in range(50, 54)])
+        Difficulty.EASY:  choice([x for x in range(40, 46)]),
+        Difficulty.MEDIUM: choice([x for x in range(46, 50)]),
+        Difficulty.HARD: choice([x for x in range(50, 54)])
     }
 
-    for i in range(empty_levels["EASY"]):
+    for i in range(empty_levels[difficulty]):
         changed = False
         while not changed:
             row_index, col_index = get_matrix_references(

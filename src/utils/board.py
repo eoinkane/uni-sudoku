@@ -88,7 +88,10 @@ def get_row_and_column(
 def update_board(
     full_board: Board,
     flat_board: Flat_Board,
-    row_index, col_index, board_size, value
+    row_index: int,
+    col_index: int,
+    board_size: int,
+    value: int
         ) -> Tuple[list[list[int], list[int]]]:
     full_board[row_index][col_index] = value
     flat_board[(row_index * board_size) + col_index]

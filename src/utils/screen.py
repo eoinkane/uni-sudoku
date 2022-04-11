@@ -34,7 +34,7 @@ def print_edit_and_original_sudoku_board(
 
     top_line = "_" + "____" * board_size
     bottom_line = "¯" + "¯¯¯¯" * board_size
-
+    print("      " + "Original Board" + ("    " + "   " * board_size) + "Playing Board")
     print("      " + column_keys + "            " + column_keys)
     print("    " + top_line + "        " + top_line)
     for row_index in range(board_size):

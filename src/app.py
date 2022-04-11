@@ -182,6 +182,10 @@ def take_turn(
     )
 
 
+def complete_game():
+    print("Congratulations, you completed the sudoku game.")
+
+
 def game(generation: Board, board_size: int):
     solution_full_board: Board = deepcopy(generation["filled_full_board"])
     unedited_full_board: Board = deepcopy(generation["empty_full_board"])
@@ -192,31 +196,7 @@ def game(generation: Board, board_size: int):
 
     column_references = get_column_references(unedited_full_board)
 
-
-    with open('game.json', 'w', encoding='utf-8') as f:
-        json.dump({"solution": solution_full_board}, f)
-
     while not game_completed:
-        # clear_screen()
-        # print_edit_and_original_sudoku_board(
-        #     unedited_full_board,
-        #     playing_full_board,
-        #     board_size,
-        #     column_references
-        #     )
-        # # print_sudoku_board(empty_full_board, column_references)
-        # (row_index, col_index), raw_grid_ref = select_grid_reference(
-        #     column_references
-        # )
-        # # print(f"selected {empty_full_board[row_index][col_index]}")
-        # playing_full_board, playing_flat_board = change_position_value(
-        #     row_index,
-        #     col_index,
-        #     raw_grid_ref,
-        #     board_size,
-        #     playing_full_board,
-        #     playing_flat_board
-        # )
         playing_full_board, playing_flat_board = take_turn(
             unedited_full_board,
             playing_full_board,
@@ -224,13 +204,13 @@ def game(generation: Board, board_size: int):
             board_size,
             column_references
         )
-        print(generation["filled_flat_board"])
         if (
-            # len([x for x in playing_flat_board if x == 0]) == 0 and
+            len([x for x in playing_flat_board if x == 0]) == 0 and
             playing_flat_board == generation["filled_flat_board"]
         ):
             print("not ")
             game_completed = True
+            complete_game()
 
 
 def main():
@@ -244,5 +224,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    # column_references = get_column_references(data["solution"])
-    # print_edit_and_original_sudoku_board(data["solution"], data["board"], 9, column_references)

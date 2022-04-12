@@ -10,7 +10,7 @@ from utils.screen import (
     print_edit_and_original_sudoku_board
 )
 from utils.board import get_column_references, update_board
-from utils.enums import Difficulty
+from utils.enums import Difficulty, Action
 from generators.board_generator import generate_board
 
 
@@ -146,12 +146,12 @@ def take_turn(
     board_size: int,
     column_references: Column_References
 ) -> Dict[str, Union[Board, Flat_Board]]:
-    print_edit_and_original_sudoku_board(
-            unedited_full_board,
-            playing_full_board,
-            board_size,
-            column_references
-            )
+    # print_edit_and_original_sudoku_board(
+    #         unedited_full_board,
+    #         playing_full_board,
+    #         board_size,
+    #         column_references
+    #         )
     # print_sudoku_board(empty_full_board, column_references)
     row_index: int = None
     col_index: int = None
@@ -182,6 +182,30 @@ def take_turn(
     )
 
 
+def decide_action() -> Action:
+    print("\nPlease select the next action you would like to take: \n"
+          + " \n".join(
+              [f"{action.value} - {action.name}" for action in Action]
+            )
+          )
+    print("Please input the number next to the difficulty you would like "
+          "to select and then press enter")
+    recieved_action = False
+    while not recieved_action:
+        raw_action = input()
+        if (
+            raw_action.isdigit() and
+            int(raw_action)
+            in [action.value for action in Action]
+        ):
+            recieved_action = True
+        else:
+            print(f"'{raw_action}' is not a valid selection " +
+                  "You can select the numbers displayed " +
+                  "above. Please try again.")
+    return Action(int(raw_action))
+
+
 def complete_game(
     completed_board: Board,
     board_size: int,
@@ -209,13 +233,28 @@ def game(generation: Board, board_size: int):
     column_references = get_column_references(unedited_full_board)
 
     while not game_completed:
-        playing_full_board, playing_flat_board = take_turn(
+        print_edit_and_original_sudoku_board(
             unedited_full_board,
             playing_full_board,
-            playing_flat_board,
             board_size,
             column_references
         )
+        action = decide_action()
+
+        if (action == Action.TAKE_TURN):
+            print_edit_and_original_sudoku_board(
+                unedited_full_board,
+                playing_full_board,
+                board_size,
+                column_references
+            )
+            playing_full_board, playing_flat_board = take_turn(
+                unedited_full_board,
+                playing_full_board,
+                playing_flat_board,
+                board_size,
+                column_references
+            )
         if (
             len([x for x in playing_flat_board if x == 0]) == 0 and
             playing_flat_board == generation["filled_flat_board"]

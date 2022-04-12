@@ -2,11 +2,11 @@ import json
 from copy import deepcopy
 from itertools import chain
 from data.game1 import data
-from typing import Dict, Tuple,Union
+from typing import Dict, Tuple, Union
 from utils.custom_types import Board, Column_References, Generation, Flat_Board
 from utils.screen import (
     clear_screen,
-    # print_sudoku_board,
+    print_sudoku_board,
     print_edit_and_original_sudoku_board
 )
 from utils.board import get_column_references, update_board
@@ -182,12 +182,24 @@ def take_turn(
     )
 
 
-def complete_game():
-    print("Congratulations, you completed the sudoku game.")
+def complete_game(
+    completed_board: Board,
+    board_size: int,
+    column_references: Column_References
+):
+    clear_screen()
+    print("Congratulations, you completed the sudoku game! "
+          "Here is the completed board")
+    print_sudoku_board(
+        completed_board,
+        board_size,
+        column_references,
+        should_clear_screen=False
+    )
 
 
 def game(generation: Board, board_size: int):
-    solution_full_board: Board = deepcopy(generation["filled_full_board"])
+    # solution_full_board: Board = deepcopy(generation["filled_full_board"])
     unedited_full_board: Board = deepcopy(generation["empty_full_board"])
     playing_full_board: Board = deepcopy(generation["empty_full_board"])
     playing_flat_board: Flat_Board = list(chain(*playing_full_board))
@@ -208,9 +220,8 @@ def game(generation: Board, board_size: int):
             len([x for x in playing_flat_board if x == 0]) == 0 and
             playing_flat_board == generation["filled_flat_board"]
         ):
-            print("not ")
             game_completed = True
-            complete_game()
+            complete_game(playing_full_board, board_size, column_references)
 
 
 def main():

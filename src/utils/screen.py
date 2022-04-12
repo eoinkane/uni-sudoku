@@ -11,24 +11,48 @@ def clear_screen():
     print()
 
 
-def print_sudoku_board(board: Board, column_references: Column_References):
-    clear_screen()
-    print("      " + "   ".join([str(x + 1) for x in range(len(board))]))
-    print("    _____________________________________")
-    for row_index, row in enumerate(board):
-        print(f"{column_references[row_index]} - | " +
-              f"{' | '.join(str(item) for item in row).replace('0', ' ')} |"
-              )
-    print("    ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯")
+def print_sudoku_board(
+    board: Board,
+    board_size: int,
+    column_references: Column_References,
+    **kwargs
+):
+    should_clear_screen = kwargs.get(
+        "should_clear_screen",
+        True
+    )
+    if should_clear_screen:
+        clear_screen()
+
+    column_keys = "   ".join([str(x) for x in range(1, (board_size + 1))])
+
+    top_line = "_" + "____" * board_size
+    bottom_line = "¯" + "¯¯¯¯" * board_size
+
+    print("      " + column_keys)
+    print("    " + top_line)
+    for row_index in range(board_size):
+        row = board[row_index]
+        row_key = f"{column_references[row_index]} - | "
+
+        print(row_key +
+              f"{' | '.join(str(item) for item in row).replace('0', ' ')} |")
+    print("    " + bottom_line)
 
 
 def print_edit_and_original_sudoku_board(
         unedited_board: Board,
         playing_board: Board,
         board_size: int,
-        column_references: Column_References
-        ):
-    clear_screen()
+        column_references: Column_References,
+        **kwargs
+):
+    should_clear_screen = kwargs.get(
+        "should_clear_screen",
+        True
+    )
+    if should_clear_screen:
+        clear_screen()
 
     column_keys = "   ".join([str(x) for x in range(1, (board_size + 1))])
 

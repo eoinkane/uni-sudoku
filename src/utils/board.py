@@ -138,3 +138,7 @@ def generate_allowed_values(
         and x not in list(chain(*sub_grid))
     ]
     return allowed_values
+
+
+def convert_grid_reference_to_matrix_reference(grid_reference: str):
+    return (ord(grid_reference[0].lower()) - 97, (int(grid_reference[1]) - 1))

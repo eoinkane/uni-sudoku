@@ -58,7 +58,11 @@ def print_edit_and_original_sudoku_board(
 
     top_line = "_" + "____" * board_size
     bottom_line = "¯" + "¯¯¯¯" * board_size
-    print("      " + "Original Board" + ("    " + "   " * board_size) + "Playing Board")
+    print(
+        "      " + "Original Board" +
+        ("    " + "   " * board_size) +
+        "Playing Board"
+         )
     print("      " + column_keys + "            " + column_keys)
     print("    " + top_line + "        " + top_line)
     for row_index in range(board_size):
@@ -72,5 +76,47 @@ def print_edit_and_original_sudoku_board(
               "    " +
               row_key +
               f"{' | '.join(str(item) for item in playing_row).replace('0', ' ')} |"
+              )
+    print("    " + bottom_line + "        " + bottom_line)
+
+
+def print_edit_and_original_sudoku_board_with_hints(
+    unedited_board: Board,
+    playing_board: Board,
+    board_size: int,
+    column_references: Column_References,
+    **kwargs
+):
+    hints = kwargs.get("hints", {})
+    should_clear_screen = kwargs.get(
+        "should_clear_screen",
+        True
+    )
+    if should_clear_screen:
+        clear_screen()
+
+    column_keys = "   ".join([str(x) for x in range(1, (board_size + 1))])
+
+    top_line = "_" + "____" * board_size
+    bottom_line = "¯" + "¯¯¯¯" * board_size
+
+    print(
+        "      " + "Original Board" +
+        ("    " + "   " * board_size) +
+        "Playing Board"
+         )
+    print("      " + column_keys + "            " + column_keys)
+    print("    " + top_line + "        " + top_line)
+    for row_index in range(board_size):
+        unedited_row = unedited_board[row_index]
+        playing_row = playing_board[row_index]
+
+        row_key = f"{column_references[row_index]} - | "
+
+        print(row_key +
+              f"{' | '.join(str(item) for item in unedited_row).replace('0', ' ')} |"
+              "    " +
+              row_key +
+              f"{'| '.join(str(item) + hints.get((str(row_index) + str(col_index)), ' ') for col_index, item in enumerate(playing_row)).replace('0', ' ')}|"
               )
     print("    " + bottom_line + "        " + bottom_line)

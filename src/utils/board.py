@@ -92,7 +92,7 @@ def update_board(
     col_index: int,
     board_size: int,
     value: int
-        ) -> Tuple[list[list[int], list[int]]]:
+        ) -> Tuple[Board, Flat_Board]:
     full_board[row_index][col_index] = value
     # flat_board[(row_index * board_size) + col_index]
     flat_board = list(chain(*full_board))

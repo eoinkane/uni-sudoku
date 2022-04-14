@@ -1,10 +1,16 @@
-import json
+import os
 from datetime import datetime
 from copy import deepcopy
 from itertools import chain
 from data.game1 import data
 from typing import Dict, Tuple
-from utils.custom_types import Board, Column_References, Generation, Flat_Board
+from utils.custom_types import (
+    Board,
+    Column_References,
+    Generation,
+    Flat_Board,
+    Hints
+)
 from utils.screen import (
     clear_screen,
     print_sudoku_board,
@@ -23,8 +29,15 @@ from utils.user_input_helpers import (
     select_difficulty,
     select_grid_reference
 )
-from utils.enums import Action
+from utils.enums import Action, Difficulty
 from generators.board_generator import generate_board
+from save_handlers.save_handlers import (
+    complete_save,
+    create_save,
+    update_save,
+    read_save
+)
+from utils.time import figure_out_time_difference
 
 
 def help():
@@ -74,7 +87,7 @@ def take_turn(
     board_size: int,
     column_references: Column_References,
     hints_enabled: bool,
-    hints: Dict[str, str]
+    hints: Hints
 ) -> Tuple[Tuple[Board, Flat_Board], Dict[str, str]]:
     row_index: int = None
     col_index: int = None
@@ -149,7 +162,12 @@ def complete_game(
     )
 
 
-def game(generation: Board, board_size: int, hints_enabled: bool):
+def game(
+    generation: Board,
+    board_size: int,
+    hints_enabled: bool,
+    save_file_name: str
+):
     unedited_full_board: Board = deepcopy(generation["empty_full_board"])
     playing_full_board: Board = deepcopy(generation["empty_full_board"])
     playing_flat_board: Flat_Board = list(chain(*playing_full_board))
@@ -191,23 +209,160 @@ def game(generation: Board, board_size: int, hints_enabled: bool):
                 hints_enabled,
                 hints
             )
+        update_save(
+            save_file_name,
+            playing_full_board,
+            hints_enabled,
+            hints
+        )
         if (
             len([x for x in playing_flat_board if x == 0]) == 0 and
             playing_flat_board == generation["filled_flat_board"]
         ):
             game_completed = True
+            complete_save(save_file_name)
             complete_game(playing_full_board, board_size, column_references)
+
+
+def decide_whether_to_play_new_or_saved_game(board_size: int):
+    use_saved_game = decide_whether_to_play_saved_game()
+
+    if check_if_there_are_saved_games() and use_saved_game:
+        save_file_path = select_saved_game()
+        save = read_save(save_file_path)
+        generation = {
+            "filled_full_board": save["solution_board"],
+            "filled_flat_board": list(chain(*save["solution_board"])),
+            "empty_full_board": save["playing_board"],
+            "empty_flat_board": list(chain(*save["playing_board"]))
+        }
+        return generation, (
+            save["hints_enabled"],
+            save_file_path
+        )
+    else:
+        if (use_saved_game):
+            print(
+                "\nThere are no saved games available for you to continue. "
+                "Please create a new one."
+            )
+        difficulty = select_difficulty()
+        hints_enabled = select_hints_enabled()
+        generation: Generation = generate_board(board_size, difficulty)
+
+        save_file_name = create_save(
+            generation["filled_full_board"],
+            generation["empty_full_board"],
+            board_size,
+            difficulty,
+            hints_enabled
+        )
+        return generation, (
+            hints_enabled,
+            save_file_name
+        )
+
+
+def decide_whether_to_play_saved_game() -> bool:
+    print("\nPlease select if you want to play a saved game: \n"
+          + " \n".join(
+              [
+                  "1 - Start a New Game",
+                  "2 - Continue a Saved Game"
+              ]
+            ))
+    print("Please input the number next to the option you would like "
+          "to select and then press enter")
+    recieved_use_saved_game = False
+    while not recieved_use_saved_game:
+        raw_use_saved_game = input()
+        if (
+            len(raw_use_saved_game) == 1 and
+            raw_use_saved_game.isdigit() and
+            int(raw_use_saved_game)
+            in [1, 2]
+        ):
+            recieved_use_saved_game = True
+        else:
+            print(f"'{raw_use_saved_game}' is not a valid selection " +
+                  "You can select the numbers displayed " +
+                  "above. Please try again.")
+    return bool(int(raw_use_saved_game) - 1)
+
+
+def check_if_there_are_saved_games():
+    return len([file_path for file_path in os.listdir("./saves") if file_path.endswith(".json")]) > 0
+
+
+def select_saved_game() -> str:
+    now = datetime.now()
+    file_paths = []
+    saved_games = []
+    for file_path in os.listdir("./saves"):
+        if file_path.endswith(".json"):
+            file_paths.append(file_path)
+    for file_path in file_paths:
+        split_file_path = (file_path.split(".j")[0]).split('_')
+        timestamp = datetime.fromisoformat(split_file_path[0])
+        difficulty = Difficulty[split_file_path[1]]
+        saved_games.append({
+            "difficulty": difficulty,
+            "timestamp": timestamp,
+            "file_path": file_path
+        })
+    saved_games.sort(key=lambda x: x["timestamp"], reverse=True)
+    time_differences = [
+        figure_out_time_difference(
+            saved_game["timestamp"],
+            now
+        ) for saved_game in saved_games
+    ]
+    option_index_max_length = len(str(saved_games.index(saved_games[-1])))
+    saved_games_display_list = [
+        (
+            f"{index + 1} - Difficulty: {saved_game['difficulty'].name} "
+            f"Created: "
+            f"{saved_game['timestamp'].strftime('%m/%d/%Y, %H:%M:%S')},"
+            f" {difference}")
+        for index, (saved_game, difference) in enumerate(
+            zip(saved_games, time_differences)
+        )
+    ]
+    print("\nPlease select the saved game you would like to continue: \n"
+          + " \n".join(saved_games_display_list))
+    print("Please input the number next to the option you would like "
+          "to select and then press enter")
+    recieved_use_saved_game = False
+    while not recieved_use_saved_game:
+        raw_saved_game = input()
+        if (
+            len(raw_saved_game) == option_index_max_length and
+            raw_saved_game.isdigit() and
+            int(raw_saved_game)
+            in [x for x in range(0, (len(saved_games) + 1))]
+        ):
+            recieved_use_saved_game = True
+        else:
+            print(f"'{raw_saved_game}' is not a valid selection " +
+                  "You can select the numbers displayed " +
+                  "above. Please try again.")
+    return saved_games[int(raw_saved_game) - 1]['file_path']
 
 
 def main():
     board_size = 9
     welcome()
-    difficulty = select_difficulty()
-    hints_enabled = select_hints_enabled()
-    generation: Generation = generate_board(board_size, difficulty)
 
-    game(generation, board_size, hints_enabled)
+    generation, (hints_enabled, save_file_name) = (
+        decide_whether_to_play_new_or_saved_game(board_size)
+    )
+
+    game(generation, board_size, hints_enabled, save_file_name)
 
 
 if __name__ == "__main__":
     main()
+    # if (decide_whether_to_play_saved_game()):
+    #     print(select_saved_game())
+    # else:
+    #     print("creating new")

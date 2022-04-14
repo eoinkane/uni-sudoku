@@ -30,7 +30,7 @@ def decide_action() -> Action:
 
 
 def select_difficulty() -> Difficulty:
-    print("Please select a difficulty level: \n"
+    print("\nPlease select a difficulty level: \n"
           + " \n".join(
               [
                   f"{diff.value} - {diff.name}" for diff in Difficulty

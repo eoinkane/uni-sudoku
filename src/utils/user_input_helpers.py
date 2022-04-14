@@ -54,8 +54,10 @@ def select_difficulty() -> Difficulty:
     return Difficulty(int(raw_difficulty))
 
 
-def select_grid_reference(column_references: Column_References
-                          ) -> Tuple[Tuple[int, int], str]:
+def select_grid_reference(
+    column_references: Column_References,
+    board_size: int
+) -> Tuple[Tuple[int, int], str]:
     print("Please input the A1 grid reference you would like to select "
           "and then press enter")
     recieved_grid_reference = False
@@ -63,7 +65,8 @@ def select_grid_reference(column_references: Column_References
         raw_grid_reference = input()
         if (validate_grid_reference_input(
             raw_grid_reference,
-            column_references
+            column_references,
+            board_size
                 )):
             recieved_grid_reference = True
         else:

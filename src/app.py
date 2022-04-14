@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from copy import deepcopy
 from itertools import chain
 from data.game1 import data
@@ -82,7 +83,8 @@ def take_turn(
     user_selected_a_editable_grid_ref = False
     while not user_selected_a_editable_grid_ref:
         (row_index, col_index), raw_grid_ref = select_grid_reference(
-            column_references
+            column_references,
+            board_size
         )
         if (unedited_full_board[row_index][col_index] == 0):
             user_selected_a_editable_grid_ref = True
@@ -97,18 +99,22 @@ def take_turn(
 
     if hints_enabled:
         hint_key = f"{row_index}{col_index}"
+        allowed_values = generate_allowed_values(
+            playing_full_board,
+            row_index,
+            col_index,
+            board_size,
+            {}
+        )
         if (
             position_value != 0 and
-            position_value not in generate_allowed_values(
-                playing_full_board,
-                row_index,
-                col_index,
-                board_size,
-                {}
-            )
+            position_value not in allowed_values
            ):
             hints[hint_key] = "?"
-        elif hint_key in hints and position_value == 0:
+        elif (
+            (hint_key in hints and position_value == 0) or
+            (hint_key in hints and position_value in allowed_values)
+        ):
             del hints[hint_key]
 
     playing_full_board, playing_flat_board = update_board(

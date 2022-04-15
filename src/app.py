@@ -294,7 +294,12 @@ def decide_whether_to_play_saved_game() -> bool:
 
 
 def check_if_there_are_saved_games():
-    return len([file_path for file_path in os.listdir("./saves") if file_path.endswith(".json")]) > 0
+    return len(
+        [
+            file_path for file_path
+            in os.listdir("./saves")
+            if file_path.endswith(".json")]
+    ) > 0
 
 
 def select_saved_game() -> str:

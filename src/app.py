@@ -168,8 +168,8 @@ def game(
     hints_enabled: bool,
     save_file_name: str
 ):
-    unedited_full_board: Board = deepcopy(generation["empty_full_board"])
-    playing_full_board: Board = deepcopy(generation["empty_full_board"])
+    unedited_full_board: Board = deepcopy(generation["initial_full_board"])
+    playing_full_board: Board = deepcopy(generation["playing_full_board"])
     playing_flat_board: Flat_Board = list(chain(*playing_full_board))
 
     game_completed = False
@@ -217,7 +217,7 @@ def game(
         )
         if (
             len([x for x in playing_flat_board if x == 0]) == 0 and
-            playing_flat_board == generation["filled_flat_board"]
+            playing_flat_board == generation["solution_flat_board"]
         ):
             game_completed = True
             complete_save(save_file_name)
@@ -231,10 +231,12 @@ def decide_whether_to_play_new_or_saved_game(board_size: int):
         save_file_path = select_saved_game()
         save = read_save(save_file_path)
         generation = {
-            "filled_full_board": save["solution_board"],
-            "filled_flat_board": list(chain(*save["solution_board"])),
-            "empty_full_board": save["playing_board"],
-            "empty_flat_board": list(chain(*save["playing_board"]))
+            "solution_full_board": save["solution_board"],
+            "solution_flat_board": list(chain(*save["solution_board"])),
+            "initial_full_board": save["initial_board"],
+            "initial_flat_board": list(chain(*save["initial_board"])),
+            "playing_full_board": save["playing_board"],
+            "playing_flat_board": list(chain(*save["playing_board"]))
         }
         return generation, (
             save["hints_enabled"],
@@ -251,8 +253,9 @@ def decide_whether_to_play_new_or_saved_game(board_size: int):
         generation: Generation = generate_board(board_size, difficulty)
 
         save_file_name = create_save(
-            generation["filled_full_board"],
-            generation["empty_full_board"],
+            generation["solution_full_board"],
+            generation["playing_full_board"],
+            generation["initial_full_board"],
             board_size,
             difficulty,
             hints_enabled

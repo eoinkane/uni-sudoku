@@ -7,6 +7,7 @@ from utils.custom_types import Board, Hints
 def create_save(
     solution_board: Board,
     playing_board: Board,
+    initial_board: Board,
     board_size: int,
     difficulty: Difficulty,
     hints_enabled: bool
@@ -15,6 +16,7 @@ def create_save(
     with open(f"saves/{save_file_name}", 'w', encoding='utf-8') as f:
         json.dump({
             "solution_board": solution_board,
+            "initial_board": initial_board,
             "playing_board": playing_board,
             "board_size": board_size,
             "difficulty": difficulty.value,

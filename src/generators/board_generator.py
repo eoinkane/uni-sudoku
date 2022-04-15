@@ -177,10 +177,12 @@ def generate_board(board_size: int, difficulty: Difficulty):
                 changed = True
 
     return {
-        "filled_full_board": global_full_board,
-        "filled_flat_board": list(chain(*global_full_board)),
-        "empty_full_board": empty_full_board,
-        "empty_flat_board": list(chain(*empty_full_board))
+        "solution_full_board": global_full_board,
+        "solution_flat_board": list(chain(*global_full_board)),
+        "initial_full_board": empty_full_board,
+        "initial_flat_board": list(chain(*empty_full_board)),
+        "playing_full_board": empty_full_board,
+        "playing_flat_board": list(chain(*empty_full_board)),
     }
 
 

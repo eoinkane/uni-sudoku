@@ -11,3 +11,5 @@ Row = List[int]
 Column = List[int]
 
 Generation = Dict[str, Union[Board, Flat_Board]]
+
+Hints = Dict[str, str]

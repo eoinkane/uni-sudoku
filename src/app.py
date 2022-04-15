@@ -370,7 +370,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    # if (decide_whether_to_play_saved_game()):
-    #     print(select_saved_game())
-    # else:
-    #     print("creating new")

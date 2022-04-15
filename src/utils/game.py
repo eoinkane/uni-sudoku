@@ -27,6 +27,7 @@ from utils.user_input_helpers import (
     select_position_value,
     select_grid_reference,
 )
+from utils.screen import clear_screen, print_sudoku_board
 
 
 def create_game_config(board_size: int):
@@ -159,4 +160,20 @@ def take_turn(
         playing_flat_board
         ),
         hints
+    )
+
+
+def complete_game(
+    completed_board: Board,
+    board_size: int,
+    column_references: Column_References
+):
+    clear_screen()
+    print("Congratulations, you completed the sudoku game! "
+          "Here is the completed board")
+    print_sudoku_board(
+        completed_board,
+        board_size,
+        column_references,
+        should_clear_screen=False
     )

@@ -48,8 +48,8 @@ def update_save(
 ):
     previous_save = read_save(save_file_name)
     previous_save["playing_board"] = playing_board
-    if (hints_enabled):
-        previous_save["hints"] = hints
+    previous_save["hints_enabled"] = hints_enabled
+    previous_save["hints"] = hints
     write_save(save_file_name, previous_save)
 
 

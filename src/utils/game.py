@@ -44,8 +44,11 @@ def create_game_config(board_size: int):
             "playing_flat_board": list(chain(*save["playing_board"]))
         }
         return generation, (
-            save["hints_enabled"],
-            save_file_path
+            save_file_path,
+            (
+                save["hints_enabled"],
+                save["hints"]
+            ),
         )
     else:
         if (use_saved_game):
@@ -66,9 +69,41 @@ def create_game_config(board_size: int):
             hints_enabled
         )
         return generation, (
-            hints_enabled,
-            save_file_name
+            save_file_name,
+            (
+                hints_enabled,
+                {}
+            )
         )
+
+
+def handle_hints(
+    playing_full_board: Board,
+    board_size: int,
+    row_index: int,
+    col_index: int,
+    hints: Hints,
+    position_value: int
+):
+    hint_key = f"{row_index}{col_index}"
+    allowed_values = generate_allowed_values(
+        playing_full_board,
+        row_index,
+        col_index,
+        board_size,
+        {}
+    )
+    if (
+        position_value != 0 and
+        position_value not in allowed_values
+    ):
+        hints[hint_key] = "?"
+    elif (
+        (hint_key in hints and position_value == 0) or
+        (hint_key in hints and position_value in allowed_values)
+    ):
+        del hints[hint_key]
+    return hints
 
 
 def take_turn(
@@ -101,25 +136,15 @@ def take_turn(
         board_size,
     )
 
-    if hints_enabled:
-        hint_key = f"{row_index}{col_index}"
-        allowed_values = generate_allowed_values(
-            playing_full_board,
-            row_index,
-            col_index,
-            board_size,
-            {}
-        )
-        if (
-            position_value != 0 and
-            position_value not in allowed_values
-           ):
-            hints[hint_key] = "?"
-        elif (
-            (hint_key in hints and position_value == 0) or
-            (hint_key in hints and position_value in allowed_values)
-        ):
-            del hints[hint_key]
+    # if hints_enabled:
+    hints = handle_hints(
+        playing_full_board,
+        board_size,
+        row_index,
+        col_index,
+        hints,
+        position_value
+    )
 
     playing_full_board, playing_flat_board = update_board(
             playing_full_board,

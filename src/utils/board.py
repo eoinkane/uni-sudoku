@@ -142,3 +142,10 @@ def generate_allowed_values(
 
 def convert_grid_reference_to_matrix_reference(grid_reference: str):
     return (ord(grid_reference[0].lower()) - 97, (int(grid_reference[1]) - 1))
+
+
+def convert_matrix_reference_to_grid_reference(
+    row_index: int,
+    col_index: int
+):
+    return f"{chr(row_index + 97).upper()}{col_index + 1}"

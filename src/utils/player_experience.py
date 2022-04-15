@@ -9,6 +9,9 @@ from save_handlers.save_handlers import (
     get_difficulty_from_save_file_name
 )
 from utils.time import format_datetime_to_string
+from utils.board import (
+    convert_matrix_reference_to_grid_reference
+)
 
 
 def welcome():
@@ -86,3 +89,31 @@ def display_quit_message(save_file_name: str):
         f"\n * Your difficulty level was: {game_difficulty_level_str} "
         f"\n * Your game was created on: {game_created_time_str}"
     )
+
+
+def display_undo_turn_message(turn_no, turn):
+    grid_ref = convert_matrix_reference_to_grid_reference(
+        turn["row_index"],
+        turn["col_index"]
+    )
+    modification_str = (
+        f"changing {grid_ref} from "
+        f"{turn['new_value']} to {turn['previous_value']}"
+    ) if turn["previous_value"] != 0 else (
+        f"emptying {grid_ref}"
+    )
+    print(
+        f"\nUndoing turn {turn_no + 1}, "
+        + modification_str +
+        "\nPlease press enter to continue"
+    )
+    input()
+
+
+def display_unable_to_undo_turn_message():
+    print(
+        "\nNo turns can be undone. The Original Board is identical to "
+        "the Playing Board. First, take a turn, then you can undo."
+        "\nPlease press enter to continue"
+    )
+    input()

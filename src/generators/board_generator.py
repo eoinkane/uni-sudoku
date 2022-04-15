@@ -183,6 +183,8 @@ def generate_board(board_size: int, difficulty: Difficulty):
         "initial_flat_board": list(chain(*empty_full_board)),
         "playing_full_board": empty_full_board,
         "playing_flat_board": list(chain(*empty_full_board)),
+        "on_turn_no": -1,
+        "turns": []
     }
 
 

@@ -27,7 +27,10 @@ from utils.enums import Action
 from save_handlers.save_handlers import (
     complete_save,
     update_save,
+    get_datetime_from_save_file_name,
+    get_difficulty_from_save_file_name
 )
+from utils.time import format_datetime_to_string
 
 
 def help():
@@ -68,6 +71,23 @@ def welcome():
     help()
     print("\nPress enter to continue")
     input()
+
+
+def display_quit_message(save_file_name: str):
+    game_difficulty_level_str = get_difficulty_from_save_file_name(
+        save_file_name
+    ).name
+    game_created_time_str = format_datetime_to_string(
+            get_datetime_from_save_file_name(save_file_name)
+        )
+    print(
+        "\nThis Python Sudoku Game will now close. "
+        "Your game is saved and can be continued at any time. "
+        "\nSaved Games can be selected by their "
+        "Difficulty and Created time. \n"
+        f"\n * Your difficulty level was: {game_difficulty_level_str} "
+        f"\n * Your game was created on: {game_created_time_str}"
+    )
 
 
 def complete_game(
@@ -133,6 +153,10 @@ def game(
                 hints_enabled,
                 hints
             )
+        elif (action == Action.QUIT):
+            return display_quit_message(save_file_name)
+            return
+
         update_save(
             save_file_name,
             playing_full_board,

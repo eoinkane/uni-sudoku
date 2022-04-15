@@ -9,3 +9,4 @@ class Difficulty(Enum):
 
 class Action(Enum):
     TAKE_TURN = auto()
+    QUIT = auto()

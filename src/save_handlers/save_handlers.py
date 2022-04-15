@@ -68,6 +68,10 @@ def check_if_there_are_saved_games():
     ) > 0
 
 
+def split_up_file_path(file_path: str):
+    return (file_path.split(".j")[0]).split('_')
+
+
 def list_saves() -> Dict[str, Union[str, Difficulty]]:
     file_paths = []
     saved_games = []
@@ -75,7 +79,7 @@ def list_saves() -> Dict[str, Union[str, Difficulty]]:
         if file_path.endswith(".json"):
             file_paths.append(file_path)
     for file_path in file_paths:
-        split_file_path = (file_path.split(".j")[0]).split('_')
+        split_file_path = split_up_file_path(file_path)
         timestamp = datetime.fromisoformat(split_file_path[0])
         difficulty = Difficulty[split_file_path[1]]
         saved_games.append({
@@ -85,3 +89,17 @@ def list_saves() -> Dict[str, Union[str, Difficulty]]:
         })
     saved_games.sort(key=lambda x: x["timestamp"], reverse=True)
     return saved_games
+
+
+def get_difficulty_from_save_file_name(
+    save_file_name: str
+) -> Difficulty:
+    return Difficulty[split_up_file_path(save_file_name)[1]]
+
+
+def get_datetime_from_save_file_name(
+    save_file_name: str
+) -> str:
+    return datetime.fromisoformat(
+        split_up_file_path(save_file_name)[0]
+    )

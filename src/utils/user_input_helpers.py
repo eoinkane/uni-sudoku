@@ -4,7 +4,7 @@ from utils.validation import validate_grid_reference_input
 from utils.board import convert_grid_reference_to_matrix_reference
 from utils.custom_types import Column_References
 from utils.enums import Difficulty, Action
-from utils.time import figure_out_time_difference
+from utils.time import figure_out_time_difference, format_datetime_to_string
 from save_handlers.save_handlers import list_saves
 
 
@@ -20,6 +20,7 @@ def decide_action() -> Action:
     while not recieved_action:
         raw_action = input()
         if (
+            len(raw_action) == len(str(len(Action))) and
             raw_action.isdigit() and
             int(raw_action)
             in [action.value for action in Action]
@@ -171,7 +172,7 @@ def select_saved_game() -> str:
         (
             f"{index + 1} - Difficulty: {saved_game['difficulty'].name} "
             f"Created: "
-            f"{saved_game['timestamp'].strftime('%m/%d/%Y, %H:%M:%S')},"
+            f"{format_datetime_to_string(saved_game['timestamp'])},"
             f" {difference}")
         for index, (saved_game, difference) in enumerate(
             zip(saved_games, time_differences)

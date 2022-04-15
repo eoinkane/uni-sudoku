@@ -16,3 +16,7 @@ def figure_out_time_difference(then: datetime, now: datetime):
     elif (duration_in_months := (duration / timedelta(months=1))) < 12:
         return f"{int(duration_in_months)} month(s) ago"
     return f"{int(duration / timedelta(years=1))} year(s) ago"
+
+
+def format_datetime_to_string(date_time: datetime) -> str:
+    return date_time.strftime('%m/%d/%Y, %H:%M:%S')

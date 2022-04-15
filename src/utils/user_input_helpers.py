@@ -14,8 +14,8 @@ def decide_action() -> Action:
               [f"{action.value} - {action.name}" for action in Action]
             )
           )
-    print("Please input the number next to the difficulty you would like "
-          "to select and then press enter")
+    print("Please input the number next to the action you would like "
+          "to take and then press enter")
     recieved_action = False
     while not recieved_action:
         raw_action = input()

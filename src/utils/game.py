@@ -10,7 +10,9 @@ from utils.user_input_helpers import (
     decide_whether_to_play_saved_game,
     select_difficulty,
     select_hints_enabled,
-    select_saved_game
+    select_saved_game,
+    select_position_value,
+    select_grid_reference,
 )
 from utils.custom_types import (
     Board,
@@ -23,11 +25,10 @@ from utils.board import (
     update_board,
     generate_allowed_values
 )
-from utils.user_input_helpers import (
-    select_position_value,
-    select_grid_reference,
-)
 from utils.screen import clear_screen, print_sudoku_board
+from utils.player_experience import (
+    display_undo_turn_message
+)
 
 
 def create_game_config(board_size: int):
@@ -42,7 +43,9 @@ def create_game_config(board_size: int):
             "initial_full_board": save["initial_board"],
             "initial_flat_board": list(chain(*save["initial_board"])),
             "playing_full_board": save["playing_board"],
-            "playing_flat_board": list(chain(*save["playing_board"]))
+            "playing_flat_board": list(chain(*save["playing_board"])),
+            "on_turn_no": save["on_turn_no"],
+            "turns": save["turns"]
         }
         return generation, (
             save_file_path,
@@ -113,8 +116,8 @@ def take_turn(
     playing_flat_board: Flat_Board,
     board_size: int,
     column_references: Column_References,
-    hints_enabled: bool,
-    hints: Hints
+    hints: Hints,
+    turns
 ) -> Tuple[Tuple[Board, Flat_Board], Dict[str, str]]:
     row_index: int = None
     col_index: int = None
@@ -137,7 +140,6 @@ def take_turn(
         board_size,
     )
 
-    # if hints_enabled:
     hints = handle_hints(
         playing_full_board,
         board_size,
@@ -147,6 +149,15 @@ def take_turn(
         position_value
     )
 
+    previous_value = playing_full_board[row_index][col_index]
+    if (position_value != previous_value):
+        turns.append({
+            "row_index": row_index,
+            "col_index": col_index,
+            "new_value": position_value,
+            "previous_value": playing_full_board[row_index][col_index]
+        })
+
     playing_full_board, playing_flat_board = update_board(
             playing_full_board,
             playing_flat_board,
@@ -155,11 +166,15 @@ def take_turn(
             board_size,
             int(position_value)
         )
-    return ((
-        playing_full_board,
-        playing_flat_board
+    return (
+        (
+            playing_full_board,
+            playing_flat_board
         ),
-        hints
+        (
+            hints,
+            turns
+        )
     )
 
 
@@ -176,4 +191,75 @@ def complete_game(
         board_size,
         column_references,
         should_clear_screen=False
+    )
+
+
+def undo_turn(
+    turn_no: int,
+    playing_full_board,
+    playing_flat_board,
+    board_size,
+    hints,
+    turns: list
+):
+    turn = turns.pop(turn_no)
+    row_index = turn["row_index"]
+    col_index = turn["col_index"]
+
+    display_undo_turn_message(turn_no, turn)
+
+    affected_hints = {
+        key: value for key, value
+        in hints.items()
+        if key[0] == str(row_index) or key[1] == str(col_index)
+    }
+    for affected_hint_key in affected_hints.keys():
+        affected_hint_row_index = int(affected_hint_key[0])
+        affected_hint_col_index = int(affected_hint_key[1])
+
+        affected_board_value = (
+            (
+                playing_full_board[affected_hint_row_index]
+            )[affected_hint_col_index]
+        )
+
+        if (
+            affected_board_value == 0
+            or affected_board_value in generate_allowed_values(
+                playing_full_board,
+                affected_hint_row_index,
+                affected_hint_col_index,
+                board_size,
+                {}
+            )
+        ):
+            del hints[affected_hint_key]
+
+    hints = handle_hints(
+        playing_full_board,
+        board_size,
+        row_index,
+        col_index,
+        hints,
+        turn["previous_value"]
+    )
+
+    playing_full_board, playing_flat_board = update_board(
+        playing_full_board,
+        playing_flat_board,
+        row_index,
+        col_index,
+        board_size,
+        turn["previous_value"]
+    )
+
+    return (
+        (
+            playing_full_board,
+            playing_flat_board
+        ),
+        (
+            hints,
+            turns
+        )
     )

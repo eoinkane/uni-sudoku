@@ -23,6 +23,7 @@ def create_save(
             "board_size": board_size,
             "difficulty": difficulty.value,
             "turns": [],
+            "on_turn_no": -1,
             "hints_enabled": hints_enabled,
             "game_completed": False,
             "hints": {}
@@ -44,12 +45,16 @@ def update_save(
     save_file_name: str,
     playing_board: Board,
     hints_enabled: bool,
-    hints: Hints
+    hints: Hints,
+    on_turn_no: int,
+    turns
 ):
     previous_save = read_save(save_file_name)
     previous_save["playing_board"] = playing_board
     previous_save["hints_enabled"] = hints_enabled
     previous_save["hints"] = hints
+    previous_save["on_turn_no"] = on_turn_no
+    previous_save["turns"] = turns
     write_save(save_file_name, previous_save)
 
 

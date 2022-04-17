@@ -22,8 +22,7 @@ from utils.custom_types import (
     Hints
 )
 from utils.board import (
-    update_board,
-    generate_allowed_values
+    update_board
 )
 from utils.screen import clear_screen, print_sudoku_board
 from utils.player_experience import (

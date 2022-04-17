@@ -99,7 +99,8 @@ def handle_hints(
     )
     if (
         position_value != 0 and
-        position_value not in allowed_values
+        position_value not in allowed_values and
+        playing_full_board[row_index][col_index] != position_value
     ):
         hints[hint_key] = "?"
     elif (

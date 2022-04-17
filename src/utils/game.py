@@ -1,4 +1,4 @@
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List
 from itertools import chain
 from save_handlers.save_handlers import (
     check_if_there_are_saved_games,
@@ -27,7 +27,12 @@ from utils.board import (
 )
 from utils.screen import clear_screen, print_sudoku_board
 from utils.player_experience import (
-    display_undo_turn_message
+    display_undo_turn_message,
+    display_redo_turn_message
+)
+from utils.hints import (
+    handle_hints,
+    handle_hints_for_an_undo_or_redo
 )
 
 
@@ -81,36 +86,6 @@ def create_game_config(board_size: int):
         )
 
 
-def handle_hints(
-    playing_full_board: Board,
-    board_size: int,
-    row_index: int,
-    col_index: int,
-    hints: Hints,
-    position_value: int
-):
-    hint_key = f"{row_index}{col_index}"
-    allowed_values = generate_allowed_values(
-        playing_full_board,
-        row_index,
-        col_index,
-        board_size,
-        {}
-    )
-    if (
-        position_value != 0 and
-        position_value not in allowed_values and
-        playing_full_board[row_index][col_index] != position_value
-    ):
-        hints[hint_key] = "?"
-    elif (
-        (hint_key in hints and position_value == 0) or
-        (hint_key in hints and position_value in allowed_values)
-    ):
-        del hints[hint_key]
-    return hints
-
-
 def take_turn(
     unedited_full_board: Board,
     playing_full_board: Board,
@@ -118,7 +93,8 @@ def take_turn(
     board_size: int,
     column_references: Column_References,
     hints: Hints,
-    turns
+    on_turn_no: int,
+    turns: List
 ) -> Tuple[Tuple[Board, Flat_Board], Dict[str, str]]:
     row_index: int = None
     col_index: int = None
@@ -152,12 +128,18 @@ def take_turn(
 
     previous_value = playing_full_board[row_index][col_index]
     if (position_value != previous_value):
+        if (on_turn_no < (len(turns) - 1)):
+            turns = turns[0:(on_turn_no + 1)]
+            # print("turns")
+            # print(turns)
+            # print(f"on_turn_no {on_turn_no}")
         turns.append({
             "row_index": row_index,
             "col_index": col_index,
             "new_value": position_value,
             "previous_value": playing_full_board[row_index][col_index]
         })
+        on_turn_no += 1
 
     playing_full_board, playing_flat_board = update_board(
             playing_full_board,
@@ -174,7 +156,10 @@ def take_turn(
         ),
         (
             hints,
-            turns
+            (
+                on_turn_no,
+                turns
+            )
         )
     )
 
@@ -203,40 +188,13 @@ def undo_turn(
     hints,
     turns: list
 ):
-    turn = turns.pop(turn_no)
+    turn = turns[turn_no]
     row_index = turn["row_index"]
     col_index = turn["col_index"]
 
     display_undo_turn_message(turn_no, turn)
 
-    affected_hints = {
-        key: value for key, value
-        in hints.items()
-        if key[0] == str(row_index) or key[1] == str(col_index)
-    }
-    for affected_hint_key in affected_hints.keys():
-        affected_hint_row_index = int(affected_hint_key[0])
-        affected_hint_col_index = int(affected_hint_key[1])
-
-        affected_board_value = (
-            (
-                playing_full_board[affected_hint_row_index]
-            )[affected_hint_col_index]
-        )
-
-        if (
-            affected_board_value == 0
-            or affected_board_value in generate_allowed_values(
-                playing_full_board,
-                affected_hint_row_index,
-                affected_hint_col_index,
-                board_size,
-                {}
-            )
-        ):
-            del hints[affected_hint_key]
-
-    hints = handle_hints(
+    hints = handle_hints_for_an_undo_or_redo(
         playing_full_board,
         board_size,
         row_index,
@@ -252,6 +210,50 @@ def undo_turn(
         col_index,
         board_size,
         turn["previous_value"]
+    )
+
+    return (
+        (
+            playing_full_board,
+            playing_flat_board
+        ),
+        (
+            hints,
+            turns
+        )
+    )
+
+
+def redo_turn(
+    turn_no: int,
+    playing_full_board,
+    playing_flat_board,
+    board_size,
+    hints,
+    turns: list
+):
+    turn = turns[turn_no + 1]
+    row_index = turn["row_index"]
+    col_index = turn["col_index"]
+
+    display_redo_turn_message(turn_no, turn)
+
+    hints = handle_hints_for_an_undo_or_redo(
+        playing_full_board,
+        board_size,
+        row_index,
+        col_index,
+        hints,
+        turn["new_value"]
+    )
+
+    playing_full_board, playing_flat_board = update_board(
+        playing_full_board,
+        playing_flat_board,
+        row_index,
+        col_index,
+        board_size,
+        turn["new_value"]
     )
 
     return (

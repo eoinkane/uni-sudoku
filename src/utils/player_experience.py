@@ -117,3 +117,31 @@ def display_unable_to_undo_turn_message():
         "\nPlease press enter to continue"
     )
     input()
+
+
+def display_redo_turn_message(turn_no, turn):
+    grid_ref = convert_matrix_reference_to_grid_reference(
+        turn["row_index"],
+        turn["col_index"]
+    )
+    modification_str = (
+        f"changing {grid_ref} from "
+        f"{turn['previous_value']} to {turn['new_value']}"
+    ) if turn["previous_value"] != 0 else (
+        f"filling {grid_ref} with {turn['new_value']}"
+    )
+    print(
+        f"\nRedoing turn {turn_no + 2}, "
+        + modification_str +
+        "\nPlease press enter to continue"
+    )
+    input()
+
+
+def display_unable_to_redo_turn_message():
+    print(
+        "\nNo turns can be redone. No turns have been undone. "
+        "First, undo a turn, then you can redo."
+        "\nPlease press enter to continue"
+    )
+    input()

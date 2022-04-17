@@ -5,13 +5,15 @@ from utils.player_experience import (
     show_help,
     welcome,
     display_quit_message,
-    display_unable_to_undo_turn_message
+    display_unable_to_undo_turn_message,
+    display_unable_to_redo_turn_message
 )
 from utils.game import (
     create_game_config,
     take_turn,
     complete_game,
-    undo_turn
+    undo_turn,
+    redo_turn
 )
 from utils.custom_types import (
     Board,
@@ -63,12 +65,15 @@ def game(
     print_board_func = assign_print_board_func(hints_enabled)
 
     while not game_completed:
+        print(f"\non_turn_no {on_turn_no} \nturns")
+        print(turns)
         print_board_func(
             unedited_full_board,
             playing_full_board,
             board_size,
             column_references,
-            hints=hints
+            hints=hints,
+            should_clear_screen=False
         )
         action = decide_action()
 
@@ -78,11 +83,12 @@ def game(
                 playing_full_board,
                 board_size,
                 column_references,
-                hints=hints
+                hints=hints,
+                should_clear_screen=False
             )
             (
                 (playing_full_board, playing_flat_board),
-                (hints, turns)
+                (hints, (on_turn_no, turns))
             ) = take_turn(
                 unedited_full_board,
                 playing_full_board,
@@ -90,16 +96,17 @@ def game(
                 board_size,
                 column_references,
                 hints,
+                on_turn_no,
                 turns
             )
-            on_turn_no += 1
-        elif (action == Action.UNDO) and on_turn_no > -1:
+        elif (action == Action.UNDO and on_turn_no > -1):
             print_board_func(
                 unedited_full_board,
                 playing_full_board,
                 board_size,
                 column_references,
-                hints=hints
+                hints=hints,
+                should_clear_screen=False
             )
             (
                 (playing_full_board, playing_flat_board),
@@ -113,8 +120,31 @@ def game(
                 turns
             )
             on_turn_no -= 1
-        elif (action == Action.UNDO) and on_turn_no == -1:
+        elif (action == Action.UNDO and on_turn_no == -1):
             display_unable_to_undo_turn_message()
+        elif (action == Action.REDO and on_turn_no < (len(turns) - 1)):
+            print_board_func(
+                unedited_full_board,
+                playing_full_board,
+                board_size,
+                column_references,
+                hints=hints,
+                should_clear_screen=False
+            )
+            (
+                (playing_full_board, playing_flat_board),
+                (hints, turns)
+            ) = redo_turn(
+                on_turn_no,
+                playing_full_board,
+                playing_flat_board,
+                board_size,
+                hints,
+                turns
+            )
+            on_turn_no += 1
+        elif (action == Action.REDO and on_turn_no == (len(turns) - 1)):
+            display_unable_to_redo_turn_message()
         elif (action == Action.SHOW_HELP):
             new_hints_enabled = show_help(hints_enabled)
             if (new_hints_enabled != hints_enabled):

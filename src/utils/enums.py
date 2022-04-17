@@ -10,5 +10,6 @@ class Difficulty(Enum):
 class Action(Enum):
     TAKE_TURN = auto()
     UNDO = auto()
+    REDO = auto()
     SHOW_HELP = auto()
     QUIT = auto()

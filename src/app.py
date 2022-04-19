@@ -65,8 +65,6 @@ def game(
     print_board_func = assign_print_board_func(hints_enabled)
 
     while not game_completed:
-        print(f"\non_turn_no {on_turn_no} \nturns")
-        print(turns)
         print_board_func(
             unedited_full_board,
             playing_full_board,

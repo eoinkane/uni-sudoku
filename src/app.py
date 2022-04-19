@@ -72,8 +72,7 @@ def game(
             playing_full_board,
             board_size,
             column_references,
-            hints=hints,
-            should_clear_screen=False
+            hints=hints
         )
         action = decide_action()
 
@@ -83,8 +82,7 @@ def game(
                 playing_full_board,
                 board_size,
                 column_references,
-                hints=hints,
-                should_clear_screen=False
+                hints=hints
             )
             (
                 (playing_full_board, playing_flat_board),
@@ -105,8 +103,7 @@ def game(
                 playing_full_board,
                 board_size,
                 column_references,
-                hints=hints,
-                should_clear_screen=False
+                hints=hints
             )
             (
                 (playing_full_board, playing_flat_board),
@@ -128,8 +125,7 @@ def game(
                 playing_full_board,
                 board_size,
                 column_references,
-                hints=hints,
-                should_clear_screen=False
+                hints=hints
             )
             (
                 (playing_full_board, playing_flat_board),

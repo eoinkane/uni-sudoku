@@ -62,7 +62,7 @@ def select_grid_reference(
     column_references: Column_References,
     board_size: int
 ) -> Tuple[Tuple[int, int], str]:
-    print("Please input the A1 grid reference you would like to select "
+    print("\nPlease input the A1 grid reference you would like to select "
           "and then press enter")
     recieved_grid_reference = False
     while not recieved_grid_reference:
@@ -80,6 +80,32 @@ def select_grid_reference(
     return convert_grid_reference_to_matrix_reference(
             raw_grid_reference
             ), raw_grid_reference
+
+
+def select_stats_enabled() -> bool:
+    print("\nPlease select if stats should be enabled: \n"
+          + " \n".join(
+              [
+                  "1 - Stats Disabled",
+                  "2 - Stats Enabled"
+              ]
+            ))
+    print("Please input the number next to the option you would like "
+          "to select and then press enter")
+    recieved_stats_enabled = False
+    while not recieved_stats_enabled:
+        raw_stats_enabled = input()
+        if (
+            raw_stats_enabled.isdigit() and
+            int(raw_stats_enabled)
+            in [1, 2]
+        ):
+            recieved_stats_enabled = True
+        else:
+            print(f"'{raw_stats_enabled}' is not a valid selection " +
+                  "You can select the numbers displayed " +
+                  "above. Please try again.")
+    return bool(int(raw_stats_enabled) - 1)
 
 
 def select_hints_enabled() -> bool:

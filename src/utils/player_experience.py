@@ -1,5 +1,6 @@
 from utils.user_input_helpers import (
-    select_hints_enabled
+    select_hints_enabled,
+    select_stats_enabled
 )
 from utils.screen import (
     clear_screen
@@ -22,9 +23,12 @@ def welcome():
     input()
 
 
-def show_help(hints_enabled) -> bool:
+def show_help(hints_enabled, stats_enabled) -> bool:
     hints_enabled_str = (
         f"\033[1m{('enabled' if hints_enabled else 'disabled')}\033[0m"
+    )
+    stats_enabled_str = (
+        f"\033[1m{('enabled' if stats_enabled else 'disabled')}\033[0m"
     )
 
     clear_screen()
@@ -36,10 +40,16 @@ def show_help(hints_enabled) -> bool:
     hints_enabled = select_hints_enabled()
 
     print(
+        f"Stats are {stats_enabled_str} for this game."
+        "\nYou can now change if stats should be enabled"
+    )
+    stats_enabled = select_stats_enabled()
+
+    print(
         "\nPress enter to continue"
         )
     input()
-    return hints_enabled
+    return (hints_enabled, stats_enabled)
 
 
 def display_help_message():

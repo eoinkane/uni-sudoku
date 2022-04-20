@@ -14,6 +14,7 @@ from utils.user_input_helpers import (
     select_saved_game,
     select_position_value,
     select_grid_reference,
+    select_stats_enabled,
 )
 from utils.custom_types import (
     Board,
@@ -60,9 +61,12 @@ def create_game_config(board_size: int):
         return generation, (
             save_file_path,
             (
-                save["hints_enabled"],
-                save["hints"]
-            ),
+                save["stats_enabled"],
+                (
+                    save["hints_enabled"],
+                    save["hints"]
+                ),
+            )
         )
     else:
         if (use_saved_game):
@@ -72,6 +76,7 @@ def create_game_config(board_size: int):
             )
         difficulty = select_difficulty()
         hints_enabled = select_hints_enabled()
+        stats_enabled = select_stats_enabled()
         generation: Generation = generate_board(board_size, difficulty)
 
         save_file_name = create_save(
@@ -80,13 +85,17 @@ def create_game_config(board_size: int):
             generation["initial_full_board"],
             board_size,
             difficulty,
-            hints_enabled
+            hints_enabled,
+            stats_enabled
         )
         return generation, (
             save_file_name,
             (
-                hints_enabled,
-                {}
+                stats_enabled,
+                (
+                    hints_enabled,
+                    {}
+                )
             )
         )
 

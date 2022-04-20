@@ -13,7 +13,8 @@ def create_save(
     initial_board: Board,
     board_size: int,
     difficulty: Difficulty,
-    hints_enabled: bool
+    hints_enabled: bool,
+    stats_enabled: bool
 ) -> str:
     save_file_name = f"{datetime.now().isoformat()}_{difficulty.name}.json"
     with open(f"saves/{save_file_name}", 'w', encoding='utf-8') as f:
@@ -27,6 +28,7 @@ def create_save(
             "on_turn_no": -1,
             "time_elapsed_secs": 0,
             "hints_enabled": hints_enabled,
+            "stats_enabled": stats_enabled,
             "game_completed": False,
             "hints": {}
         }, f)
@@ -47,6 +49,7 @@ def update_save(
     save_file_name: str,
     playing_board: Board,
     hints_enabled: bool,
+    stats_enabled: bool,
     hints: Hints,
     on_turn_no: int,
     turns,
@@ -55,6 +58,7 @@ def update_save(
     previous_save = read_save(save_file_name)
     previous_save["playing_board"] = playing_board
     previous_save["hints_enabled"] = hints_enabled
+    previous_save["stats_enabled"] = stats_enabled
     previous_save["hints"] = hints
     previous_save["on_turn_no"] = on_turn_no
     previous_save["turns"] = turns

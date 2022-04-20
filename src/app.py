@@ -25,7 +25,7 @@ from utils.custom_types import (
 )
 from utils.screen import (
     print_edit_and_original_sudoku_board,
-    print_edit_and_original_sudoku_board_with_hints
+    setup_screen_config
 )
 from utils.board import (
     get_column_references
@@ -46,23 +46,30 @@ from utils.time import (
 
 def assign_print_board_func(
     hints_enabled: bool,
+    stats_enabled: bool,
     board_size: int,
-    column_references: Column_References
+    column_references: Column_References,
+    initial_flat_board: Flat_Board,
+    solution_flat_board: Flat_Board
 ):
+    setup_screen_config(
+        board_size,
+        hints_enabled,
+        stats_enabled,
+        column_references,
+        initial_flat_board,
+        solution_flat_board
+    )
+
     def print_board_func(
         unedited_board: Board,
         playing_board: Board,
         starting_time: datetime,
         **kwargs
     ):
-        return (
-            print_edit_and_original_sudoku_board if not hints_enabled
-            else print_edit_and_original_sudoku_board_with_hints
-        )(
+        return print_edit_and_original_sudoku_board(
             unedited_board,
             playing_board,
-            board_size,
-            column_references,
             time_elasped_str=format_time_elapsed_timedelta_to_string(
                 calculate_time_elapsed(starting_time)
             ),
@@ -75,6 +82,7 @@ def game(
     generation: Generation,
     board_size: int,
     hints_enabled: bool,
+    stats_enabled: bool,
     save_file_name: str,
     hints: Hints
 ):
@@ -90,8 +98,11 @@ def game(
 
     print_board_func = assign_print_board_func(
         hints_enabled,
+        stats_enabled,
         board_size,
-        column_references
+        column_references,
+        generation["initial_flat_board"],
+        generation["solution_flat_board"]
     )
 
     starting_date_time = None
@@ -172,14 +183,24 @@ def game(
         elif (action == Action.REDO and on_turn_no == (len(turns) - 1)):
             display_unable_to_redo_turn_message()
         elif (action == Action.SHOW_HELP):
-            new_hints_enabled = show_help(hints_enabled)
-            if (new_hints_enabled != hints_enabled):
+            new_hints_enabled, new_stats_enabled = show_help(
+                hints_enabled,
+                stats_enabled
+            )
+            if (
+                new_hints_enabled != hints_enabled or
+                new_stats_enabled != stats_enabled
+            ):
                 print_board_func = assign_print_board_func(
                     new_hints_enabled,
+                    new_stats_enabled,
                     board_size,
-                    column_references
+                    column_references,
+                    generation["initial_flat_board"],
+                    generation["solution_flat_board"]
                 )
                 hints_enabled = new_hints_enabled
+                stats_enabled = new_stats_enabled
         elif (action == Action.QUIT):
             return display_quit_message(save_file_name)
 
@@ -187,6 +208,7 @@ def game(
             save_file_name,
             playing_full_board,
             hints_enabled,
+            stats_enabled,
             hints,
             on_turn_no,
             turns,
@@ -210,7 +232,16 @@ def main():
     board_size = 9
     welcome()
 
-    generation, (save_file_name, (hints_enabled, hints)) = (
+    generation, (
+        save_file_name,
+        (
+            stats_enabled,
+            (
+                hints_enabled,
+                hints
+            )
+        )
+    ) = (
         create_game_config(board_size)
     )
 
@@ -218,6 +249,7 @@ def main():
         generation,
         board_size,
         hints_enabled,
+        stats_enabled,
         save_file_name,
         hints
     )

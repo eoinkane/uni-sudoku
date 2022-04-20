@@ -13,6 +13,11 @@ class TimerDuration(Enum):
     HARD = 20
 
 
+class BoardSize(Enum):
+    FOUR_BY_FOUR = 4
+    NINE_BY_NINE = 9
+
+
 class Action(Enum):
     TAKE_TURN = auto()
     UNDO = auto()

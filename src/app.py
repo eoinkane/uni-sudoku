@@ -35,7 +35,7 @@ from utils.board import (
 from utils.user_input_helpers import (
     decide_action,
 )
-from utils.enums import Action
+from utils.enums import Action, Difficulty
 from save_handlers.save_handlers import (
     complete_save,
     update_save,
@@ -43,6 +43,9 @@ from save_handlers.save_handlers import (
 from utils.time import (
     format_time_elapsed_timedelta_to_string,
     calculate_time_elapsed
+)
+from generators.board_generator import (
+    generate_board
 )
 
 
@@ -302,4 +305,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    generation = generate_board(4, Difficulty.EASY)

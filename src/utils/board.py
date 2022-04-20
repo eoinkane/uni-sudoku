@@ -3,13 +3,39 @@ import string
 from typing import Tuple
 from itertools import chain
 from .custom_types import Board, Column_References, Flat_Board, Row, Column
+from .enums import (
+    BoardSize
+)
 
 
 def get_column_references(board: Board) -> Column_References:
     return list(string.ascii_lowercase[0:len(board[0])].upper())
 
 
-def get_sub_grid_indexes(grid_id: int):
+def get_4_by_4_sub_grid_indexes(grid_id: int):
+    if (grid_id < 1 or grid_id > 4):
+        raise Exception("invalid input to get_sub_grid_indexes")
+
+    column_indexes = None
+    if (grid_id <= 2):
+        column_indexes = [
+            x - 1 for x in [x + (2 * (grid_id - 1)) for x in range(1, 3)]
+        ]
+        row_indexes = [x for x in range(2)]
+    elif (grid_id > 2):
+        row_indexes = [x for x in range(3, 5)]
+        column_indexes = [
+            x - 1 for x in [
+                x + (2 * ((grid_id - 1) % 2)) for x in range(1, 3)
+            ]]
+
+    return {
+        "row_indexes": row_indexes,
+        "column_indexes": column_indexes
+    }
+
+
+def get_9_by_9_sub_grid_indexes(grid_id: int):
     if (grid_id < 1 or grid_id > 9):
         raise Exception("invalid input to get_sub_grid_indexes")
 
@@ -38,6 +64,13 @@ def get_sub_grid_indexes(grid_id: int):
     }
 
 
+def get_sub_grid_indexes(board_size: BoardSize, grid_id: int):
+    if (board_size == BoardSize.NINE_BY_NINE):
+        return get_9_by_9_sub_grid_indexes(grid_id)
+    elif (board_size == BoardSize.FOUR_BY_FOUR):
+        return get_4_by_4_sub_grid_indexes(grid_id)
+
+
 def get_sub_grid(sub_grid_indexes, board: Board, grid_id: int) -> Board:
     sub_grid_indexes = get_sub_grid_indexes(grid_id)
     return [
@@ -52,17 +85,17 @@ def get_sub_grid(sub_grid_indexes, board: Board, grid_id: int) -> Board:
     ]
 
 
-def generate_empty_board(board_size: int) -> Board:
+def generate_empty_board(board_size_int: int) -> Board:
     return [
-        [0 for j in range(board_size)]
-        for i in range(board_size)
+        [0 for j in range(board_size_int)]
+        for i in range(board_size_int)
     ]
 
 
-def get_matrix_references(flat_position: int, board_size: int):
-    if (flat_position > (board_size ** 2)):
+def get_matrix_references(flat_position: int, board_size_int: int):
+    if (flat_position > (board_size_int ** 2)):
         raise Exception('Position greater than sample')
-    row_index, col_index = divmod(flat_position, 9)
+    row_index, col_index = divmod(flat_position, board_size_int)
     return row_index, col_index
 
 
@@ -103,9 +136,10 @@ def generate_allowed_values(
     local_full_board,
     row_index,
     col_index,
-    board_size,
+    board_size: BoardSize,
     do_not_use
         ):
+    board_size_int = board_size.value
     existing_row, existing_column = get_row_and_column(
         local_full_board,
         row_index,
@@ -127,11 +161,11 @@ def generate_allowed_values(
     sub_grid = get_sub_grid(sub_grid_indexes, local_full_board, sub_grid_id)
 
     local_do_not_use = []
-    if (((row_index * board_size) + col_index) in do_not_use):
-        local_do_not_use = do_not_use[((row_index * board_size) + col_index)]
+    if (((row_index * board_size_int) + col_index) in do_not_use):
+        local_do_not_use = do_not_use[((row_index * board_size_int) + col_index)]
 
     allowed_values = [
-        x for x in range(1, 10)
+        x for x in range(1, (board_size_int + 1))
         if x not in existing_row
         and x not in existing_column
         and x not in local_do_not_use

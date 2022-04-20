@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from typing import Dict, Tuple, List
 from itertools import chain
 from save_handlers.save_handlers import (
@@ -13,6 +14,8 @@ from utils.user_input_helpers import (
     select_saved_game,
     select_position_value,
     select_grid_reference,
+    select_stats_enabled,
+    select_timer_enabled
 )
 from utils.custom_types import (
     Board,
@@ -33,6 +36,10 @@ from utils.hints import (
     handle_hints,
     handle_hints_for_an_undo_or_redo
 )
+from utils.time import (
+    format_time_elapsed_timedelta_to_string,
+    calculate_time_elapsed
+)
 
 
 def create_game_config(board_size: int):
@@ -49,14 +56,24 @@ def create_game_config(board_size: int):
             "playing_full_board": save["playing_board"],
             "playing_flat_board": list(chain(*save["playing_board"])),
             "on_turn_no": save["on_turn_no"],
-            "turns": save["turns"]
+            "turns": save["turns"],
+            "time_elapsed": timedelta(seconds=save["time_elapsed_secs"])
         }
         return generation, (
             save_file_path,
             (
-                save["hints_enabled"],
-                save["hints"]
-            ),
+                save["stats_enabled"],
+                (
+                    (
+                        save["timer_enabled"],
+                        timedelta(seconds=save["timer_duration_secs"])
+                    ),
+                    (
+                        save["hints_enabled"],
+                        save["hints"]
+                    ),
+                )
+            )
         )
     else:
         if (use_saved_game):
@@ -66,6 +83,8 @@ def create_game_config(board_size: int):
             )
         difficulty = select_difficulty()
         hints_enabled = select_hints_enabled()
+        stats_enabled = select_stats_enabled()
+        timer_enabled, timer_duration = select_timer_enabled(difficulty)
         generation: Generation = generate_board(board_size, difficulty)
 
         save_file_name = create_save(
@@ -74,13 +93,25 @@ def create_game_config(board_size: int):
             generation["initial_full_board"],
             board_size,
             difficulty,
-            hints_enabled
+            hints_enabled,
+            stats_enabled,
+            timer_enabled,
+            timer_duration
         )
         return generation, (
             save_file_name,
             (
-                hints_enabled,
-                {}
+                stats_enabled,
+                (
+                    (
+                        timer_enabled,
+                        timer_duration
+                    ),
+                    (
+                        hints_enabled,
+                        {}
+                    )
+                )
             )
         )
 
@@ -129,9 +160,6 @@ def take_turn(
     if (position_value != previous_value):
         if (on_turn_no < (len(turns) - 1)):
             turns = turns[0:(on_turn_no + 1)]
-            # print("turns")
-            # print(turns)
-            # print(f"on_turn_no {on_turn_no}")
         turns.append({
             "row_index": row_index,
             "col_index": col_index,
@@ -165,16 +193,20 @@ def take_turn(
 
 def complete_game(
     completed_board: Board,
-    board_size: int,
-    column_references: Column_References
+    starting_time: datetime
 ):
     clear_screen()
-    print("Congratulations, you completed the sudoku game! "
-          "Here is the completed board")
+    time_taken_to_complete_game_str = format_time_elapsed_timedelta_to_string(
+        calculate_time_elapsed(starting_time)
+    )
+
+    print(
+        "Congratulations, you completed the sudoku game! "
+        f"\nIt took you {time_taken_to_complete_game_str} to complete the game"
+        "\nHere is the completed board"
+    )
     print_sudoku_board(
         completed_board,
-        board_size,
-        column_references,
         should_clear_screen=False
     )
 

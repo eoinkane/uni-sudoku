@@ -7,6 +7,12 @@ class Difficulty(Enum):
     HARD = auto()
 
 
+class TimerDuration(Enum):
+    EASY = 10
+    MEDIUM = 15
+    HARD = 20
+
+
 class Action(Enum):
     TAKE_TURN = auto()
     UNDO = auto()

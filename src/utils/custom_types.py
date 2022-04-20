@@ -1,3 +1,4 @@
+from datetime import timedelta
 from typing import Dict, List, Union
 
 Board = List[List[int]]
@@ -10,6 +11,6 @@ Row = List[int]
 
 Column = List[int]
 
-Generation = Dict[str, Union[Board, Flat_Board]]
+Generation = Dict[str, Union[Board, Flat_Board, timedelta]]
 
 Hints = Dict[str, str]

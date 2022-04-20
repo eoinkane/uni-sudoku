@@ -1,9 +1,9 @@
 from typing import Tuple
-from datetime import datetime
+from datetime import datetime, timedelta
 from utils.validation import validate_grid_reference_input
 from utils.board import convert_grid_reference_to_matrix_reference
 from utils.custom_types import Column_References
-from utils.enums import Difficulty, Action
+from utils.enums import Difficulty, Action, TimerDuration
 from utils.time import figure_out_time_difference, format_datetime_to_string
 from save_handlers.save_handlers import list_saves
 
@@ -62,7 +62,7 @@ def select_grid_reference(
     column_references: Column_References,
     board_size: int
 ) -> Tuple[Tuple[int, int], str]:
-    print("Please input the A1 grid reference you would like to select "
+    print("\nPlease input the A1 grid reference you would like to select "
           "and then press enter")
     recieved_grid_reference = False
     while not recieved_grid_reference:
@@ -80,6 +80,32 @@ def select_grid_reference(
     return convert_grid_reference_to_matrix_reference(
             raw_grid_reference
             ), raw_grid_reference
+
+
+def select_stats_enabled() -> bool:
+    print("\nPlease select if stats should be enabled: \n"
+          + " \n".join(
+              [
+                  "1 - Stats Disabled",
+                  "2 - Stats Enabled"
+              ]
+            ))
+    print("Please input the number next to the option you would like "
+          "to select and then press enter")
+    recieved_stats_enabled = False
+    while not recieved_stats_enabled:
+        raw_stats_enabled = input()
+        if (
+            raw_stats_enabled.isdigit() and
+            int(raw_stats_enabled)
+            in [1, 2]
+        ):
+            recieved_stats_enabled = True
+        else:
+            print(f"'{raw_stats_enabled}' is not a valid selection " +
+                  "You can select the numbers displayed " +
+                  "above. Please try again.")
+    return bool(int(raw_stats_enabled) - 1)
 
 
 def select_hints_enabled() -> bool:
@@ -106,6 +132,42 @@ def select_hints_enabled() -> bool:
                   "You can select the numbers displayed " +
                   "above. Please try again.")
     return bool(int(raw_hints_enabled) - 1)
+
+
+def select_timer_enabled(selected_difficulty: Difficulty) -> bool:
+    difficulty_name = selected_difficulty.name
+    difficulty_timer = TimerDuration[difficulty_name]
+    print("\nPlease select if the timer should be enabled: \n" +
+          f"Since you selected {difficulty_name} difficulty the " +
+          f"timer would be {difficulty_timer.value} minutes\n" +
+          " \n".join(
+              [
+                  "1 - Timer Disabled",
+                  "2 - Timer Enabled"
+              ]
+            ))
+    print(
+        "The game will automatically end after this time.\n"
+        "Please input the number next to the option you would like "
+        "to select and then press enter"
+    )
+    recieved_timer_enabled = False
+    while not recieved_timer_enabled:
+        raw_timer_enabled = input()
+        if (
+            raw_timer_enabled.isdigit() and
+            int(raw_timer_enabled)
+            in [1, 2]
+        ):
+            recieved_timer_enabled = True
+        else:
+            print(f"'{raw_timer_enabled}' is not a valid selection " +
+                  "You can select the numbers displayed " +
+                  "above. Please try again.")
+    if (int(raw_timer_enabled) == 1):
+        return False, None
+    else:
+        return True, timedelta(minutes=difficulty_timer.value)
 
 
 def select_position_value(

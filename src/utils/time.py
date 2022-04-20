@@ -18,5 +18,29 @@ def figure_out_time_difference(then: datetime, now: datetime):
     return f"{int(duration / timedelta(years=1))} year(s) ago"
 
 
+def calculate_time_elapsed(starting_time: datetime) -> timedelta:
+    return datetime.now() - starting_time
+
+
+def calculate_seconds_elapsed(starting_time: datetime) -> int:
+    return (datetime.now() - starting_time).seconds
+
+
+# dont use/ maybe do
+def format_time_elapsed_timedelta_to_string(time_elapsed):
+    hours, remainder = divmod(
+        time_elapsed.seconds,
+        3600
+    )
+    minutes, seconds = divmod(
+        remainder,
+        60
+    )
+    return datetime.strptime(
+        f"{hours}:{minutes}:{seconds}",
+        "%H:%M:%S"
+    ).strftime("%H hour(s) %M minute(s) %S second(s)")
+
+
 def format_datetime_to_string(date_time: datetime) -> str:
     return date_time.strftime('%m/%d/%Y, %H:%M:%S')

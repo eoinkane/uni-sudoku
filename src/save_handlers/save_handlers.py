@@ -1,9 +1,10 @@
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, Union
 from utils.enums import Difficulty
 from utils.custom_types import Board, Hints
+from utils.time import calculate_seconds_elapsed
 
 
 def create_save(
@@ -12,7 +13,10 @@ def create_save(
     initial_board: Board,
     board_size: int,
     difficulty: Difficulty,
-    hints_enabled: bool
+    hints_enabled: bool,
+    stats_enabled: bool,
+    timer_enabled: bool,
+    timer_duration: timedelta
 ) -> str:
     save_file_name = f"{datetime.now().isoformat()}_{difficulty.name}.json"
     with open(f"saves/{save_file_name}", 'w', encoding='utf-8') as f:
@@ -24,9 +28,13 @@ def create_save(
             "difficulty": difficulty.value,
             "turns": [],
             "on_turn_no": -1,
+            "time_elapsed_secs": 0,
             "hints_enabled": hints_enabled,
+            "stats_enabled": stats_enabled,
             "game_completed": False,
-            "hints": {}
+            "hints": {},
+            "timer_enabled": timer_enabled,
+            "timer_duration_secs": timer_duration.seconds
         }, f)
     return save_file_name
 
@@ -45,16 +53,22 @@ def update_save(
     save_file_name: str,
     playing_board: Board,
     hints_enabled: bool,
+    stats_enabled: bool,
     hints: Hints,
     on_turn_no: int,
-    turns
+    turns,
+    starting_time: datetime
 ):
     previous_save = read_save(save_file_name)
     previous_save["playing_board"] = playing_board
     previous_save["hints_enabled"] = hints_enabled
+    previous_save["stats_enabled"] = stats_enabled
     previous_save["hints"] = hints
     previous_save["on_turn_no"] = on_turn_no
     previous_save["turns"] = turns
+    previous_save["time_elapsed_secs"] = calculate_seconds_elapsed(
+        starting_time
+    )
     write_save(save_file_name, previous_save)
 
 

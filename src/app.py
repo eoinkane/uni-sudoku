@@ -1,7 +1,6 @@
 from copy import deepcopy
 from datetime import datetime, timedelta
 from itertools import chain
-from data.game1 import data
 from utils.player_experience import (
     show_help,
     welcome,

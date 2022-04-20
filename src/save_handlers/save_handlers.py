@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, Union
 from utils.enums import Difficulty
 from utils.custom_types import Board, Hints
@@ -14,7 +14,9 @@ def create_save(
     board_size: int,
     difficulty: Difficulty,
     hints_enabled: bool,
-    stats_enabled: bool
+    stats_enabled: bool,
+    timer_enabled: bool,
+    timer_duration: timedelta
 ) -> str:
     save_file_name = f"{datetime.now().isoformat()}_{difficulty.name}.json"
     with open(f"saves/{save_file_name}", 'w', encoding='utf-8') as f:
@@ -30,7 +32,9 @@ def create_save(
             "hints_enabled": hints_enabled,
             "stats_enabled": stats_enabled,
             "game_completed": False,
-            "hints": {}
+            "hints": {},
+            "timer_enabled": timer_enabled,
+            "timer_duration_secs": timer_duration.seconds
         }, f)
     return save_file_name
 

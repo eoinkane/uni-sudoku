@@ -15,6 +15,7 @@ from utils.user_input_helpers import (
     select_position_value,
     select_grid_reference,
     select_stats_enabled,
+    select_timer_enabled
 )
 from utils.custom_types import (
     Board,
@@ -63,9 +64,15 @@ def create_game_config(board_size: int):
             (
                 save["stats_enabled"],
                 (
-                    save["hints_enabled"],
-                    save["hints"]
-                ),
+                    (
+                        save["timer_enabled"],
+                        timedelta(seconds=save["timer_duration_secs"])
+                    ),
+                    (
+                        save["hints_enabled"],
+                        save["hints"]
+                    ),
+                )
             )
         )
     else:
@@ -77,6 +84,7 @@ def create_game_config(board_size: int):
         difficulty = select_difficulty()
         hints_enabled = select_hints_enabled()
         stats_enabled = select_stats_enabled()
+        timer_enabled, timer_duration = select_timer_enabled(difficulty)
         generation: Generation = generate_board(board_size, difficulty)
 
         save_file_name = create_save(
@@ -86,15 +94,23 @@ def create_game_config(board_size: int):
             board_size,
             difficulty,
             hints_enabled,
-            stats_enabled
+            stats_enabled,
+            timer_enabled,
+            timer_duration
         )
         return generation, (
             save_file_name,
             (
                 stats_enabled,
                 (
-                    hints_enabled,
-                    {}
+                    (
+                        timer_enabled,
+                        timer_duration
+                    ),
+                    (
+                        hints_enabled,
+                        {}
+                    )
                 )
             )
         )
@@ -177,8 +193,6 @@ def take_turn(
 
 def complete_game(
     completed_board: Board,
-    board_size: int,
-    column_references: Column_References,
     starting_time: datetime
 ):
     clear_screen()
@@ -193,8 +207,6 @@ def complete_game(
     )
     print_sudoku_board(
         completed_board,
-        board_size,
-        column_references,
         should_clear_screen=False
     )
 

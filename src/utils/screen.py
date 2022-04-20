@@ -1,3 +1,4 @@
+from datetime import timedelta
 from itertools import chain
 import platform
 import os
@@ -18,6 +19,8 @@ HINTS_ENABLED = None
 STATS_ENABLED = None
 SOLUTION_FLAT_BOARD = None
 NO_INITIAL_FILLED_POSITIONS = None
+TIMER_ENABLED = None
+TIMER_DURATION = None
 
 
 def clear_screen():
@@ -34,7 +37,9 @@ def setup_screen_config(
     stats_enabled: bool,
     column_references: Column_References,
     initial_flat_board: Flat_Board,
-    solution_flat_board: Flat_Board
+    solution_flat_board: Flat_Board,
+    timer_enabled: bool,
+    timer_duration: timedelta
 ):
     global BOARD_SIZE
     BOARD_SIZE = board_size
@@ -65,6 +70,13 @@ def setup_screen_config(
     global SOLUTION_FLAT_BOARD
     SOLUTION_FLAT_BOARD = solution_flat_board
 
+    global TIMER_ENABLED
+    TIMER_ENABLED = timer_enabled
+
+    if (TIMER_ENABLED):
+        global TIMER_DURATION
+        TIMER_DURATION = timer_duration
+
     global SETUP_COMPLETED
     SETUP_COMPLETED = True
 
@@ -86,6 +98,10 @@ def print_sudoku_board(
         "time_elasped_str",
         None
     )
+    remaining_timer_duration_str = kwargs.get(
+        "remaining_timer_duration_str",
+        None
+    )
     if should_clear_screen:
         clear_screen()
 
@@ -105,8 +121,10 @@ def print_sudoku_board(
 
     print("\n".join(output))
 
+    if (remaining_timer_duration_str):
+        print(f"Time Remaining In The Timer: f{remaining_timer_duration_str}")
     if (time_elasped_str):
-        print(f"Time Elasped Since the Start of the Game: {time_elasped_str}")
+        print(f"Time Elapsed Since the Start of the Game: {time_elasped_str}")
 
 
 def build_unedited_row(unedited_row):
@@ -146,6 +164,10 @@ def print_edit_and_original_sudoku_board(
     )
     time_elasped_str = kwargs.get(
         "time_elasped_str",
+        None
+    )
+    remaining_timer_duration_str = kwargs.get(
+        "remaining_timer_duration_str",
         None
     )
 
@@ -237,6 +259,10 @@ def print_edit_and_original_sudoku_board(
                     )
                 ) +
                 "%"
+            )
+        if (TIMER_ENABLED):
+            output.append(
+                f"Time Remaining in the Timer: {remaining_timer_duration_str}"
             )
         output.append(
             f"Time Elasped Since the Start of the Game: {time_elasped_str}"

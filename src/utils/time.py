@@ -18,22 +18,6 @@ def figure_out_time_difference(then: datetime, now: datetime):
     return f"{int(duration / timedelta(years=1))} year(s) ago"
 
 
-def update_time_elapsed_time_delta(
-    starting_date_time: datetime,
-    time_elapsed_time_delta: timedelta
-):
-    using = time_elapsed_time_delta + (datetime.now() - starting_date_time)
-    new = datetime.now()
-    print(
-        f"\nstart datetime {starting_date_time}"
-        f"\n new datetime {new}"
-        f"\n diff {new - starting_date_time}"
-        f"\n should be {starting_date_time + (new - starting_date_time)}"
-        f"\n propsoed {using}"
-    )
-    return using
-
-
 def calculate_time_elapsed(starting_time: datetime) -> timedelta:
     return datetime.now() - starting_time
 

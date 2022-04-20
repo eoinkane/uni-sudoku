@@ -1,4 +1,5 @@
 from copy import deepcopy
+from datetime import datetime
 from itertools import chain
 from data.game1 import data
 from utils.player_experience import (
@@ -19,7 +20,8 @@ from utils.custom_types import (
     Board,
     Generation,
     Flat_Board,
-    Hints
+    Hints,
+    Column_References
 )
 from utils.screen import (
     print_edit_and_original_sudoku_board,
@@ -36,13 +38,37 @@ from save_handlers.save_handlers import (
     complete_save,
     update_save,
 )
+from utils.time import (
+    format_time_elapsed_timedelta_to_string,
+    calculate_time_elapsed
+)
 
 
-def assign_print_board_func(hints_enabled):
-    return (
-        print_edit_and_original_sudoku_board if not hints_enabled
-        else print_edit_and_original_sudoku_board_with_hints
-    )
+def assign_print_board_func(
+    hints_enabled: bool,
+    board_size: int,
+    column_references: Column_References
+):
+    def print_board_func(
+        unedited_board: Board,
+        playing_board: Board,
+        starting_time: datetime,
+        **kwargs
+    ):
+        return (
+            print_edit_and_original_sudoku_board if not hints_enabled
+            else print_edit_and_original_sudoku_board_with_hints
+        )(
+            unedited_board,
+            playing_board,
+            board_size,
+            column_references,
+            time_elasped_str=format_time_elapsed_timedelta_to_string(
+                calculate_time_elapsed(starting_time)
+            ),
+            **kwargs
+        )
+    return print_board_func
 
 
 def game(
@@ -62,14 +88,23 @@ def game(
 
     column_references = get_column_references(unedited_full_board)
 
-    print_board_func = assign_print_board_func(hints_enabled)
+    print_board_func = assign_print_board_func(
+        hints_enabled,
+        board_size,
+        column_references
+    )
+
+    starting_date_time = None
+    if ((time_elapsed := generation["time_elapsed"]) is None):
+        starting_date_time = datetime.now()
+    else:
+        starting_date_time = datetime.now() - time_elapsed
 
     while not game_completed:
         print_board_func(
             unedited_full_board,
             playing_full_board,
-            board_size,
-            column_references,
+            starting_date_time,
             hints=hints
         )
         action = decide_action()
@@ -78,8 +113,7 @@ def game(
             print_board_func(
                 unedited_full_board,
                 playing_full_board,
-                board_size,
-                column_references,
+                starting_date_time,
                 hints=hints
             )
             (
@@ -99,8 +133,7 @@ def game(
             print_board_func(
                 unedited_full_board,
                 playing_full_board,
-                board_size,
-                column_references,
+                starting_date_time,
                 hints=hints
             )
             (
@@ -121,8 +154,7 @@ def game(
             print_board_func(
                 unedited_full_board,
                 playing_full_board,
-                board_size,
-                column_references,
+                starting_date_time,
                 hints=hints
             )
             (
@@ -142,7 +174,11 @@ def game(
         elif (action == Action.SHOW_HELP):
             new_hints_enabled = show_help(hints_enabled)
             if (new_hints_enabled != hints_enabled):
-                print_board_func = assign_print_board_func(new_hints_enabled)
+                print_board_func = assign_print_board_func(
+                    new_hints_enabled,
+                    board_size,
+                    column_references
+                )
                 hints_enabled = new_hints_enabled
         elif (action == Action.QUIT):
             return display_quit_message(save_file_name)
@@ -153,7 +189,8 @@ def game(
             hints_enabled,
             hints,
             on_turn_no,
-            turns
+            turns,
+            starting_date_time
         )
         if (
             len([x for x in playing_flat_board if x == 0]) == 0 and
@@ -161,7 +198,12 @@ def game(
         ):
             game_completed = True
             complete_save(save_file_name)
-            complete_game(playing_full_board, board_size, column_references)
+            complete_game(
+                playing_full_board,
+                board_size,
+                column_references,
+                starting_date_time
+            )
 
 
 def main():
@@ -172,7 +214,13 @@ def main():
         create_game_config(board_size)
     )
 
-    game(generation, board_size, hints_enabled, save_file_name, hints)
+    game(
+        generation,
+        board_size,
+        hints_enabled,
+        save_file_name,
+        hints
+    )
 
 
 if __name__ == "__main__":

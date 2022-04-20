@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from typing import Dict, Tuple, List
 from itertools import chain
 from save_handlers.save_handlers import (
@@ -33,6 +34,10 @@ from utils.hints import (
     handle_hints,
     handle_hints_for_an_undo_or_redo
 )
+from utils.time import (
+    format_time_elapsed_timedelta_to_string,
+    calculate_time_elapsed
+)
 
 
 def create_game_config(board_size: int):
@@ -49,7 +54,8 @@ def create_game_config(board_size: int):
             "playing_full_board": save["playing_board"],
             "playing_flat_board": list(chain(*save["playing_board"])),
             "on_turn_no": save["on_turn_no"],
-            "turns": save["turns"]
+            "turns": save["turns"],
+            "time_elapsed": timedelta(seconds=save["time_elapsed_secs"])
         }
         return generation, (
             save_file_path,
@@ -129,9 +135,6 @@ def take_turn(
     if (position_value != previous_value):
         if (on_turn_no < (len(turns) - 1)):
             turns = turns[0:(on_turn_no + 1)]
-            # print("turns")
-            # print(turns)
-            # print(f"on_turn_no {on_turn_no}")
         turns.append({
             "row_index": row_index,
             "col_index": col_index,
@@ -166,11 +169,19 @@ def take_turn(
 def complete_game(
     completed_board: Board,
     board_size: int,
-    column_references: Column_References
+    column_references: Column_References,
+    starting_time: datetime
 ):
     clear_screen()
-    print("Congratulations, you completed the sudoku game! "
-          "Here is the completed board")
+    time_taken_to_complete_game_str = format_time_elapsed_timedelta_to_string(
+        calculate_time_elapsed(starting_time)
+    )
+
+    print(
+        "Congratulations, you completed the sudoku game! "
+        f"\nIt took you {time_taken_to_complete_game_str} to complete the game"
+        "\nHere is the completed board"
+    )
     print_sudoku_board(
         completed_board,
         board_size,

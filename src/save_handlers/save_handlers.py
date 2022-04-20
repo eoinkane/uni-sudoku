@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Dict, Union
 from utils.enums import Difficulty
 from utils.custom_types import Board, Hints
+from utils.time import calculate_seconds_elapsed
 
 
 def create_save(
@@ -24,6 +25,7 @@ def create_save(
             "difficulty": difficulty.value,
             "turns": [],
             "on_turn_no": -1,
+            "time_elapsed_secs": 0,
             "hints_enabled": hints_enabled,
             "game_completed": False,
             "hints": {}
@@ -47,7 +49,8 @@ def update_save(
     hints_enabled: bool,
     hints: Hints,
     on_turn_no: int,
-    turns
+    turns,
+    starting_time: datetime
 ):
     previous_save = read_save(save_file_name)
     previous_save["playing_board"] = playing_board
@@ -55,6 +58,9 @@ def update_save(
     previous_save["hints"] = hints
     previous_save["on_turn_no"] = on_turn_no
     previous_save["turns"] = turns
+    previous_save["time_elapsed_secs"] = calculate_seconds_elapsed(
+        starting_time
+    )
     write_save(save_file_name, previous_save)
 
 

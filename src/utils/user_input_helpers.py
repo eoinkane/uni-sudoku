@@ -206,14 +206,16 @@ def select_hints_enabled() -> bool:
     return bool(int(raw_hints_enabled) - 1)
 
 
-def select_timer_enabled(selected_difficulty: Difficulty) -> bool:
+def select_timer_enabled(
+    selected_difficulty: Difficulty
+) -> Tuple[bool, timedelta]:
     """Allow the player to select if the timer should be enabled
 
     Args:
         selected_difficulty (Difficulty): the difficulty level to figure out the corresponding timer duration
 
     Returns:
-        bool: should the timer be enabled
+        Tuple[bool, timedelta]: should the timer be enabled and the timer duration
     """ # noqa
 
     # get the corresponding timer duration for the given difficulty
@@ -257,7 +259,7 @@ def select_timer_enabled(selected_difficulty: Difficulty) -> bool:
 
     # return whether the player chose to enable the timer and if so also return the timer duration # noqa
     if (int(raw_timer_enabled) == 1):
-        return False, None
+        return False, timedelta(seconds=0)
     else:
         return True, timedelta(minutes=difficulty_timer.value)
 

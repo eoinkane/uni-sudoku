@@ -62,7 +62,7 @@ def assign_print_board_func(
     Args:
         hints_enabled (bool): should the hints be enabled
         stats_enabled (bool): should the stats be enabled
-        board_size (int): Size of the sudoku board
+        board_size (int): size of the sudoku board
         column_references (Column_References): Column References to be used when displaying the sudoku boards
         initial_flat_board (Flat_Board): 1-D version of the initial sudoku board
         solution_flat_board (Flat_Board): 1-D version of the sudoku board solution
@@ -106,7 +106,7 @@ def assign_print_board_func(
             remaining_timer_duration_str=(
                 format_time_elapsed_timedelta_to_string(
                     remaining_timer_duration
-                )
+                ) if timer_enabled else None
             ),
             **kwargs
         )
@@ -214,7 +214,7 @@ def game(
                 starting_date_time,
                 hints=hints
             )
-            # take a turn and update the sudoku board, hints and turns 
+            # take a turn and update the sudoku board, hints and turns
             (
                 (playing_full_board, playing_flat_board),
                 (hints, (on_turn_no, turns))
@@ -284,7 +284,8 @@ def game(
                 hints_enabled,
                 stats_enabled
             )
-            # if hints_enabled or stats_enabled has been changed then the print sudoku board wrapper needs to be updated
+            # if hints_enabled or stats_enabled has been changed,
+            # then the print sudoku board wrapper needs to be updated
             if (
                 new_hints_enabled != hints_enabled or
                 new_stats_enabled != stats_enabled

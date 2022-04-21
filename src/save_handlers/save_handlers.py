@@ -25,7 +25,7 @@ def create_save(
         playing_board (Board): 2-D version (matrix) of the current sudoku board
         initial_board (Board): 2-D version (matrix) of the initial sudoku board
         board_size (int): size of the sudoku board
-        difficulty (Difficulty): Difficulty level the game has been created using
+        difficulty (Difficulty): difficulty level the game has been created using
         hints_enabled (bool): should the hints be enabled
         stats_enabled (bool): should the stats be enabled
         timer_enabled (bool): should the timer be enabled
@@ -37,6 +37,7 @@ def create_save(
 
     # save the file by the created date and time as well as the difficulty
     save_file_name = f"{datetime.now().isoformat()}_{difficulty.name}.json"
+    print()
 
     # write out to that file
     with open(f"saves/{save_file_name}", 'w', encoding='utf-8') as f:

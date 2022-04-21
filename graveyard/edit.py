@@ -1,7 +1,7 @@
 from typing import Tuple
 from itertools import chain
 from random import sample
-from data.game1 import data
+from .data.game1 import data
 # import os
 
 board = data["solution"]

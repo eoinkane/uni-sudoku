@@ -1,7 +1,16 @@
 from datetime import datetime, timedelta
 
 
-def figure_out_time_difference(then: datetime, now: datetime):
+def figure_out_time_difference(then: datetime, now: datetime) -> str:
+    """helper function to construct a string using the largest time unit
+
+    Args:
+        then (datetime): the starting time of the duration
+        now (datetime): the closing time of the duration
+
+    Returns:
+        str: a string representation of the duration using the largest time unit 
+    """ # noqa
     duration = now - then
     if (duration_in_seconds := (duration / timedelta(seconds=1))) < 60:
         return f"{int(duration_in_seconds)} second(s) ago"
@@ -19,15 +28,42 @@ def figure_out_time_difference(then: datetime, now: datetime):
 
 
 def calculate_time_elapsed(starting_time: datetime) -> timedelta:
+    """helper function to calculate the time elapsed since a starting datetime.
+    this function returns a timedelta object representation of the duration
+
+    Args:
+        starting_time (datetime): the datetime to calculate the elapsed duration from
+
+    Returns:
+        timedelta: the elapsed duration
+    """ # noqa
     return datetime.now() - starting_time
 
 
 def calculate_seconds_elapsed(starting_time: datetime) -> int:
+    """helper function to calculate the time elapsed since a starting datetime
+    this function returns a int representation of the duration, the number of seconds
+
+    Args:
+        starting_time (datetime): the datetime to calculate the elapsed duration from
+
+    Returns:
+        int: the elasped duration in seconds
+    """ # noqa
     return (datetime.now() - starting_time).seconds
 
 
-# dont use/ maybe do
-def format_time_elapsed_timedelta_to_string(time_elapsed):
+def format_time_elapsed_timedelta_to_string(time_elapsed: timedelta) -> str:
+    """helper function to format a timedelta object to a string
+
+    Args:
+        time_elapsed (timedelta): the time elapsed object to format
+
+    Returns:
+        str: _description_
+    """
+
+    # calculate the hours, minutes and seconds of the time elapsed
     hours, remainder = divmod(
         time_elapsed.seconds,
         3600
@@ -36,6 +72,9 @@ def format_time_elapsed_timedelta_to_string(time_elapsed):
         remainder,
         60
     )
+
+    # construct a datetime object with calculated time,
+    # and then format it to a string
     return datetime.strptime(
         f"{hours}:{minutes}:{seconds}",
         "%H:%M:%S"
@@ -43,4 +82,12 @@ def format_time_elapsed_timedelta_to_string(time_elapsed):
 
 
 def format_datetime_to_string(date_time: datetime) -> str:
+    """helper function to format a datetime object to a string
+
+    Args:
+        date_time (datetime): the datetime object to format
+
+    Returns:
+        str: a string representation of the datetime object
+    """
     return date_time.strftime('%m/%d/%Y, %H:%M:%S')
